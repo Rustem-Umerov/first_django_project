@@ -1,5 +1,7 @@
 from django.db import models
 
+from .utils import product_image_path
+
 
 class Category(models.Model):
     """
@@ -30,7 +32,10 @@ class Product(models.Model):
     name = models.CharField(max_length=150, verbose_name="Название продукта")
     description = models.TextField(verbose_name="Описание продукта")
     image = models.ImageField(
-        upload_to="products/", verbose_name="Фото продукта", blank=True, null=True
+        upload_to=product_image_path,
+        verbose_name="Фото продукта",
+        blank=True,
+        null=True,
     )
     category = models.ForeignKey(
         Category,
