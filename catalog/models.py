@@ -63,3 +63,32 @@ class Product(models.Model):
 
     def __str__(self) -> str:
         return f"{self.name} — {self.price} ₽"
+
+
+class Contact(models.Model):
+    """
+    Модель для хранения контактных данных
+    """
+
+    name = models.CharField(
+        max_length=150,
+        verbose_name="Название",
+        help_text="Например: Главный офис, Техподдержка, Менеджер",
+    )
+    phone = models.CharField(max_length=20, verbose_name="Телефон", unique=True)
+    email = models.EmailField(
+        verbose_name="Email", help_text="Рабочий email для связи", unique=True
+    )
+    address = models.TextField(
+        verbose_name="Адрес",
+        help_text="Фактический адрес офиса (необязательно)",
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = "Контакт"
+        verbose_name_plural = "Контакты"
+        ordering = ["name"]
+
+    def __str__(self) -> str:
+        return f"{self.name} — {self.phone}"
