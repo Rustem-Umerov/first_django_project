@@ -29,7 +29,7 @@
     {{ success_message }}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
-{%endif%}
+{% endif %}
 
 {% if error_message %}
 <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -37,6 +37,17 @@
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 {% endif %}
+
+{% for contact in contacts %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">{{ contact.name }}</h5>
+            <p class="card-text"><strong>Телефон:</strong> {{ contact.phone }}</p>
+            <p class="card-text"><strong>Email:</strong> {{ contact.email }}</p>
+            <p class="card-text"><strong>Адрес:</strong> {{ contact.address }}</p>
+        </div>
+    </div>
+{% endfor %}
 
 <div class="container">
     <div class="row text-start">
@@ -46,15 +57,15 @@
                     <table class="table table-striped">
                         <tr>
                             <td class="w-25">Страна</td>
-                            <td>USA</td>
+                            <td>Россия</td>
                         </tr>
                         <tr>
                             <td class="w-25">ИНН</td>
-                            <td>91-1144442</td>
+                            <td>11-1111111</td>
                         </tr>
                         <tr>
                             <td class="w-25">Адрес</td>
-                            <td>Redmond,WA,98052-6399</td>
+                            <td>Москва, Пушкина, 98052-6399</td>
                         </tr>
                     </table>
                 </div>

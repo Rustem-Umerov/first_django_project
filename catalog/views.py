@@ -1,7 +1,9 @@
+from typing import Any
+
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
-from .models import Product
+from .models import Contact, Product
 
 
 def get_last_products(count: int) -> list[Product]:
@@ -52,7 +54,9 @@ def contacts(request: HttpRequest) -> HttpResponse:
     :return: Ответ с отрендеренным шаблоном contacts.html.
     """
 
-    context = {}
+    context: dict[str, Any] = {
+        "contacts": Contact.objects.all(),
+    }
 
     if request.method == "POST":
         name = request.POST.get("name", "").strip()
