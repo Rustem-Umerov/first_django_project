@@ -1,0 +1,57 @@
+[
+{
+    "model": "catalog.category",
+    "pk": 1,
+    "fields": {
+        "name": "Овощи",
+        "description": ""
+    }
+},
+{
+    "model": "catalog.category",
+    "pk": 2,
+    "fields": {
+        "name": "Фрукты",
+        "description": ""
+    }
+},
+{
+    "model": "catalog.product",
+    "pk": 2,
+    "fields": {
+        "name": "Огурцы",
+        "description": "Свежие огурцы",
+        "image": "",
+        "category": 1,
+        "price": "50.00",
+        "created_at": "2026-04-15T16:38:30.798Z",
+        "updated_at": "2026-04-15T16:38:30.798Z"
+    }
+},
+{
+    "model": "catalog.product",
+    "pk": 3,
+    "fields": {
+        "name": "Яблоко",
+        "description": "Свежие яблоки",
+        "image": "",
+        "category": 2,
+        "price": "150.00",
+        "created_at": "2026-04-15T16:39:20.174Z",
+        "updated_at": "2026-04-15T16:39:20.174Z"
+    }
+},
+{
+    "model": "catalog.product",
+    "pk": 4,
+    "fields": {
+        "name": "Банан",
+        "description": "Свежие бананы",
+        "image": "",
+        "category": 2,
+        "price": "100.00",
+        "created_at": "2026-04-15T16:39:57.085Z",
+        "updated_at": "2026-04-15T18:17:25.210Z"
+    }
+}
+]
