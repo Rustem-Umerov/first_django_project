@@ -1,7 +1,7 @@
 from typing import Any
 
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 
 from .models import Contact, Product
 
@@ -43,7 +43,8 @@ def home(request: HttpRequest) -> HttpResponse:
 
     products = get_last_products(5)
     print_products(products)
-    return render(request=request, template_name="catalog/home.html")
+    context = {"products": products}
+    return render(request=request, template_name="catalog/home.html", context=context)
 
 
 def contacts(request: HttpRequest) -> HttpResponse:
@@ -70,4 +71,21 @@ def contacts(request: HttpRequest) -> HttpResponse:
 
     return render(
         request=request, template_name="catalog/contacts.html", context=context
+    )
+
+
+def product_detail(request: HttpRequest, pk: int) -> HttpResponse:
+    """
+    Отображает страницу с подробной информацией о товаре.
+
+    :param request: Объект HTTP-запроса.
+    :param pk: Ключ к объекту
+    :return: Ответ с отрендеренным шаблоном product_detail.html.
+    """
+
+    product = get_object_or_404(Product, pk=pk)
+    context = {"product": product}
+
+    return render(
+        request=request, template_name="catalog/product_detail.html", context=context
     )
