@@ -1,0 +1,38 @@
+{% extends "catalog/base.html" %}
+
+{% block content %}
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="card">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+            {% else %}
+                <img src="https://via.placeholder.com/400x300" class="card-img-top" alt="Нет изображения">
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <h1>{{ product.name }}</h1>
+        <p class="lead text-break">{{ product.description }}</p>
+
+        <table class="table">
+            <tr>
+                <td>Цена</td>
+                <td>{{ product.price }} ₽</td>
+            </tr>
+            <tr>
+                <td>Категория</td>
+                <td>{{ product.category }}</td>
+            </tr>
+            <tr>
+                <td>ID товара</td>
+                <td>{{ product.pk }}</td>
+            </tr>
+        </table>
+
+        <a href="#" class="btn btn-primary btn-lg mt-4">Купить</a>
+    </div>
+</div>
+{% endblock %}
+
