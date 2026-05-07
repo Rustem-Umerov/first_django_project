@@ -1,8 +1,9 @@
 from typing import Any
 
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 
+from .forms import ProductForm
 from .models import Contact, Product
 
 
@@ -89,3 +90,50 @@ def product_detail(request: HttpRequest, pk: int) -> HttpResponse:
     return render(
         request=request, template_name="catalog/product_detail.html", context=context
     )
+
+
+def product_create(request: HttpRequest) -> HttpResponse:
+    """
+    Страница с формой добавления нового продукта.
+    При GET показывает пустую форму.
+    При POST обрабатывает данные, создаёт продукт и перенаправляет на его страницу.
+    """
+
+    if request.method == "GET":
+        form = ProductForm()
+        context: dict[str, Any] = {"form": form}
+        return render(
+            request=request,
+            template_name="catalog/product_create.html",
+            context=context,
+        )
+
+    elif request.method == "POST":
+        form = ProductForm(data=request.POST, files=request.FILES)
+        if form.is_valid():
+            product: Product = form.save(commit=False)
+
+            # Забираем файл из cleaned_data
+            image = form.cleaned_data.get("image")
+
+            # Временно убираем файл с объекта
+            product.image = None
+
+            # Сохраняем объект → появляется pk
+            product.save()
+
+            # Если файл был — присваиваем и сохраняем ещё раз
+            if image:
+                product.image = image
+                product.save()
+
+            return redirect(to="catalog:product_detail", pk=product.pk)
+
+        context = {"form": form}
+        return render(
+            request=request,
+            template_name="catalog/product_create.html",
+            context=context,
+        )
+
+    return HttpResponse(status=405)
