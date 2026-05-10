@@ -3,7 +3,7 @@ from django import forms
 from .models import Product
 
 
-class ProductForm(forms.ModelForm[Product]):
+class ProductForm(forms.ModelForm):
     """
     Форма для создания и редактирования продуктов.
     Основана на модели Product.

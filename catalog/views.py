@@ -1,37 +1,42 @@
 from typing import Any
 
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import ProductForm
 from .models import Contact, Product
 
-
-def get_last_products(count: int) -> list[Product]:
-    """
-    Возвращает последние count продуктов, отсортированные по дате создания.
-
-    :param count: Количество элементов
-    :return: Список объектов Product
-    """
-
-    return list(Product.objects.order_by("-created_at")[:count])
+PER_PAGE = 12
 
 
-def print_products(products: list[Product]) -> None:
-    """
-    Выводит информацию о продуктах в консоль сервера.
+# **** Данная функция нужна была для первых заданий. Сейчас не используется.
+# def get_last_products(count: int) -> list[Product]:
+#     """
+#     Возвращает последние count продуктов, отсортированные по дате создания.
+#
+#     :param count: Количество элементов
+#     :return: Список объектов Product
+#     """
+#
+#     return list(Product.objects.order_by("-created_at")[:count])
 
-    :param products: Список объектов Product
-    """
 
-    for prod in products:
-        print(
-            f"Название продукта: {prod.name}, "
-            f"Цена: {prod.price}, "
-            f"Категория: {prod.category}, "
-            f"Дата создания: {prod.created_at}"
-        )
+# **** Данная функция нужна была для первых заданий. Сейчас не используется.
+# def print_products(products: list[Product]) -> None:
+#     """
+#     Выводит информацию о продуктах в консоль сервера.
+#
+#     :param products: Список объектов Product
+#     """
+#
+#     for prod in products:
+#         print(
+#             f"Название продукта: {prod.name}, "
+#             f"Цена: {prod.price}, "
+#             f"Категория: {prod.category}, "
+#             f"Дата создания: {prod.created_at}"
+#         )
 
 
 def home(request: HttpRequest) -> HttpResponse:
@@ -42,9 +47,49 @@ def home(request: HttpRequest) -> HttpResponse:
     :return: Ответ с отрендеренным шаблоном home.html.
     """
 
-    products = get_last_products(5)
-    print_products(products)
-    context = {"products": products}
+    # Получение QuerySet
+    qs_products = Product.objects.all()
+
+    # Создаем объект Paginator
+    paginator = Paginator(qs_products, PER_PAGE)
+
+    # Получение номера страницы из запроса
+    page_number = request.GET.get("page", 1)
+
+    # Попытка получить объекты для одной страницы
+    try:
+        page_obj = paginator.page(page_number)
+
+    except PageNotAnInteger:
+        # если не число — первая страница
+        page_obj = paginator.page(1)
+
+    except EmptyPage:
+        # приводим к int, потому что page_number — строка
+        num = int(page_number)
+
+        if num < 1:
+            # если меньше 1, то первая страницы
+            page_obj = paginator.page(1)
+        else:
+            # если слишком большой номер — последняя страница
+            page_obj = paginator.page(paginator.num_pages)
+
+    # Формирование диапазона страниц, для навигации
+    current_page = page_obj.number
+    total_page = paginator.num_pages
+
+    start_page = max(current_page - 5, 1)
+    end_page = min(current_page + 5, total_page)
+
+    page_range = range(start_page, end_page + 1)
+
+    context = {
+        "page_obj": page_obj,
+        "paginator": paginator,
+        "page_range": page_range,
+    }
+
     return render(request=request, template_name="catalog/home.html", context=context)
 
 

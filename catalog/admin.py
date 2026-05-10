@@ -20,7 +20,7 @@ class ProductAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     list_display_links = ("name",)
 
     def save_model(
-        self, request: HttpRequest, obj: Product, form: ModelForm[Product], change: bool
+        self, request: HttpRequest, obj: Product, form: ModelForm, change: bool
     ) -> None:
         # Если объект новый (создаётся впервые)
         if not obj.pk:
