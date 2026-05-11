@@ -1,0 +1,59 @@
+{% extends "catalog/base.html" %}
+
+{% block title %}Добавить продукт{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Добавить новый продукт</h1>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {{ form.non_field_errors }}
+
+        <div class="mb-3">
+            <label class="form-label">
+                {{ form.name.label }}
+            </label>
+            {{ form.name }}
+            {{ form.name.errors }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">
+                {{ form.description.label }}
+            </label>
+            {{ form.description }}
+            {{ form.description.errors }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">
+                {{ form.image.label }}
+            </label>
+            {{ form.image }}
+            {{ form.image.errors }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">
+                {{ form.category.label }}
+            </label>
+            {{ form.category }}
+            {{ form.category.errors }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">
+                {{ form.price.label }}
+            </label>
+            {{ form.price }}
+            {{ form.price.errors }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Сохранить
+        </button>
+    </form>
+</div>
+{% endblock %}
