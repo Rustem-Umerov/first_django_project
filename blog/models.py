@@ -1,10 +1,19 @@
+from django.conf import settings
+from django.contrib.auth.models import User
 from django.db import models
 
-from .utils import blogpost_image_path
+from .helpers.paths import blogpost_image_path, profile_avatar_path
 
 
 class BlogPost(models.Model):
     """Модель поста в блоге."""
+
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="blog_posts",
+        verbose_name="Автор",
+    )
 
     title = models.CharField(max_length=200, verbose_name="Заголовок")
     content = models.TextField(verbose_name="Содержимое")
@@ -30,3 +39,17 @@ class BlogPost(models.Model):
         if len(title) > 50:
             title = title[:50] + "..."
         return title
+
+
+class Profile(models.Model):
+    """Модель профиля пользователя."""
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    avatar = models.ImageField(
+        upload_to=profile_avatar_path,
+        default="avatars/default_avatar/default_avatar.png",
+    )
+    nickname = models.CharField(max_length=50, unique=True)
+
+    def __str__(self) -> str:
+        return self.nickname or self.user.username
