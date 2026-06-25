@@ -1,0 +1,140 @@
+{% extends "blog/base.html" %}
+
+{% block blog_content %}
+<div class="container mt-5">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
+
+        <!-- Левая часть: заголовок -->
+        <h1 class="fw-light mb-3 mb-md-0">Журнал</h1>
+
+        <!-- Правая часть: поиск + сортировка + количество -->
+        <div class="d-flex align-items-center">
+
+            <!-- Поиск -->
+            <form method="get" class="me-1">
+                <div class="input-group input-group-sm">
+                    <input type="text" name="q" class="form-control" placeholder="Поиск...">
+                    <button class="btn btn-outline-secondary" type="submit">Найти</button>
+                </div>
+            </form>
+
+            <!-- Сброс поиска -->
+            <a class="btn btn-outline-secondary btn-sm me-4" href="{% url 'blog_public:post_list' %}">Сбросить поиск</a>
+
+            <!-- Сортировка -->
+            <div class="dropdown me-3">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown">
+                    Сортировка
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="?sort=new">Сначала новые</a></li>
+                    <li><a class="dropdown-item" href="?sort=old">Сначала старые</a></li>
+                </ul>
+            </div>
+
+            <!-- Количество постов -->
+            <span class="text-muted small">Постов: {{ page_obj.paginator.count }}</span>
+
+        </div>
+    </div>
+
+    <!-- Разделитель между шапкой и постами -->
+    <div class="py-1"></div>
+
+    <!-- Один пост в строке -->
+    {% for post in posts %}
+    <div class="row mb-4">
+
+        <!-- Фото фиксированной высоты -->
+        <div class="col-md-5">
+            <div class="ratio ratio-16x9 rounded overflow-hidden bg-light">
+                {% if post.image %}
+                <img src="{{ post.image.url }}" class="w-100 h-100 object-fit-contain" alt="{{ post.title }}">
+                {% else %}
+                <img src="/static/img/no-image.png" class="w-100 h-100 object-fit-contain" alt="Нет фото">
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Контент фиксированной высоты -->
+        <div class="col-md-7 d-flex flex-column mt-2">
+
+            <!-- Заголовок (обрезается, если слишком длинный) -->
+            <h3 class="fw-semibold text-truncate">
+                {{ post.title }}
+            </h3>
+
+            <!-- Дата -->
+            <p class="text-muted small mb-2">{{ post.created_at|date:"d.m.Y" }}</p>
+
+            <!-- Описание (фиксированная высота + скрытие лишнего текста) -->
+            <div class="overflow-hidden" style="max-height: 4.5rem;">
+                <p class="text-secondary mb-0">
+                    {{ post.content|truncatewords:40 }}
+                </p>
+            </div>
+
+            <!-- Кнопка всегда внизу -->
+            <a href="{% url 'blog_public:post_detail' post.pk %}" class="btn btn-outline-dark btn-sm mt-auto">
+                Читать далее
+            </a>
+
+        </div>
+    </div>
+    {% empty %}
+    <div class="alert alert-secondary text-center py-4 fw-semibold">
+        Постов пока нет
+    </div>
+    {% endfor %}
+
+    {% if is_paginated %}
+    <nav>
+        <ul class="pagination justify-content-center mt-4">
+
+            <!-- Предыдущая -->
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Предыдущая">
+                    &laquo;
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">&laquo;</span>
+            </li>
+            {% endif %}
+
+            <!-- Номера страниц -->
+            {% for num in page_obj.paginator.page_range %}
+            {% if num == page_obj.number %}
+            <li class="page-item active">
+                <span class="page-link">{{ num }}</span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            <!-- Следующая -->
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Следующая">
+                    &raquo;
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">&raquo;</span>
+            </li>
+            {% endif %}
+
+        </ul>
+    </nav>
+    {% endif %}
+
+</div>
+{% endblock %}

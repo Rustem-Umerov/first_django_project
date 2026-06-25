@@ -1,0 +1,60 @@
+{% extends "blog/base.html" %}
+
+{% block blog_content %}
+<div class="container mt-4">
+
+    <!-- Заголовок: Create или Update -->
+    <h1 class="mb-4">
+        {% if form.instance.pk %}
+            Редактировать пост
+        {% else %}
+            Создать новый пост
+        {% endif %}
+    </h1>
+
+    <!-- Форма -->
+    <form method="post" enctype="multipart/form-data" class="mb-4">
+        {% csrf_token %}
+
+        <!-- Ошибки формы -->
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <!-- Поля формы -->
+        {% for field in form %}
+            <div class="mb-3">
+                <label class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <div class="text-danger small">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <!-- Кнопки -->
+
+        {% if form.instance.pk %}
+            <button type="submit" class="btn btn-primary">
+                Сохранить изменения
+            </button>
+        {% else %}
+            <button type="submit" name="action" value="publish" class="btn btn-primary ms-2">
+                Опубликовать
+            </button>
+
+            <button type="submit" name="action" value="draft" class="btn btn-secondary">
+                Сохранить как черновик
+            </button>
+        {% endif %}
+
+        <a href="{% url 'blog_account:dashboard' %}" class="btn btn-secondary ms-2">
+            Отмена
+        </a>
+    </form>
+
+</div>
+
+{% endblock %}

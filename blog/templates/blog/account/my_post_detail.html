@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+
+    <h1 class="mb-3 text-break">{{ post.title }}</h1>
+
+    <p class="text-muted">
+        Опубликовано: {{ post.created_at|date:"d.m.Y H:i" }}
+    </p>
+
+    {% if post.image %}
+        <img src="{{ post.image.url }}" class="img-fluid rounded mb-4" alt="{{ post.title }}">
+    {% endif %}
+
+    <div class="mb-5 text-break">
+        {{ post.content|linebreaks }}
+    </div>
+
+    <div class="d-flex gap-2">
+
+        <!-- Кнопки Перенести в черновик/Опубликовать -->
+        {% if post.is_published %}
+                <button type="submit"
+                        class="btn btn-primary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#confirmDraftModal">
+                Перенести в черновик
+                </button>
+        {% else %}
+                <button type="submit"
+                        class="btn btn-primary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#confirmPublishModal">
+                Опубликовать
+                </button>
+        {% endif %}
+
+        <!-- Кнопка Редактировать -->
+        <a href="{% url 'blog_account:my_post_edit' post.pk %}" class="btn btn-primary">
+            ✏️ Редактировать
+        </a>
+
+        <!-- Кнопка Удалить -->
+        <button type="button"
+                class="btn btn-danger"
+                data-bs-toggle="modal"
+                data-bs-target="#confirmDeleteModal">
+            🗑 Удалить
+        </button>
+
+        <!-- Кнопка Назад -->
+        {% if post.is_published %}
+            <a href="{% url 'blog_account:my_published' %}" class="btn btn-secondary ms-auto">
+                ← Назад
+            </a>
+        {% else %}
+            <a href="{% url 'blog_account:my_drafts' %}" class="btn btn-secondary ms-auto">
+                ← Назад
+            </a>
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<!-- МОДАЛКА: ПЕРЕНОС В ЧЕРНОВИК -->
+<div class="modal fade" id="confirmDraftModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Подтверждение</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        Вы уверены, что хотите перенести пост в черновики?
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+
+        <form method="post" action="{% url 'blog_account:my_post_change_status' pk=post.pk action='draft' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Да, перенести</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- МОДАЛКА: ПУБЛИКАЦИЯ -->
+<div class="modal fade" id="confirmPublishModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Подтверждение</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        Вы уверены, что хотите опубликовать этот пост?
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+
+        <form method="post" action="{% url 'blog_account:my_post_change_status' pk=post.pk action='publish' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Да, опубликовать</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- МОДАЛКА: КНОПКА УДАЛИТЬ -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Удалить пост?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        Вы уверены, что хотите удалить пост:
+        <strong>{{ post.title|truncatechars:45 }}</strong>?
+        <br>
+        Это действие необратимо.
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+
+        <form method="post" action="{% url 'blog_account:my_post_delete' post.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Да, удалить</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
