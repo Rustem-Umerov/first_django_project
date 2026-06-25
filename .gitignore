@@ -179,3 +179,15 @@ cython_debug/
 *.sqlite3
 *.db
 *.db-journal
+
+# Django
+media/
+staticfiles/
+static/
+
+htmlcov/
+
+node_modules/
+
+*.pid
+*.sock
