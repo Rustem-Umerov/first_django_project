@@ -1,5 +1,5 @@
 from django.http import HttpRequest
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, ListView, View
 
@@ -304,8 +304,8 @@ class ProductCreateView(CreateView):
         # Сообщаем CreateView, какой объект создан
         self.object = product
 
-        # Передаём управление родителю (он сделает redirect)
-        return super().form_valid(form=form)
+        # Вызываем get_success_url
+        return redirect(self.get_success_url())
 
     def get_success_url(self):
         """Куда перенаправлять после успешного создания."""
