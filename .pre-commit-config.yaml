@@ -24,3 +24,9 @@ repos:
         entry: poetry run isort
         language: system
         types: [python]
+
+      - id: migration-linter
+        name: migration-linter
+        entry: poetry run django-migration-linter
+        language: system
+        types: [python]

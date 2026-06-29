@@ -183,7 +183,6 @@ cython_debug/
 # Django
 media/
 staticfiles/
-static/
 
 htmlcov/
 
