@@ -132,3 +132,5 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 LOGIN_REDIRECT_URL = "/"
+
+DEFAULT_AVATAR_URL = "/static/img/default_avatar.png"

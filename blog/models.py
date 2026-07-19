@@ -45,11 +45,18 @@ class Profile(models.Model):
     """Модель профиля пользователя."""
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    avatar = models.ImageField(
-        upload_to=profile_avatar_path,
-        default="avatars/default_avatar/default_avatar.png",
-    )
+    avatar = models.ImageField(upload_to=profile_avatar_path, blank=True, null=True)
     nickname = models.CharField(max_length=50, unique=True)
+
+    @property
+    def avatar_url(self) -> str:
+        """
+        Возвращает avatar если файл есть, иначе возвращает дефолтный аватар.
+        """
+
+        if self.avatar:
+            return self.avatar.url
+        return settings.DEFAULT_AVATAR_URL
 
     def __str__(self) -> str:
         return self.nickname or self.user.username
