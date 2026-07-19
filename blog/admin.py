@@ -20,7 +20,6 @@ class BlogPostAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
 
 class ProfileInline(admin.StackedInline):  # type: ignore[type-arg]
     model = Profile
-    exclude = ("user",)
     can_delete = False
     extra = 0
     verbose_name_plural = "Профиль пользователя"
