@@ -10,9 +10,7 @@ from ..models import BlogPost
 
 
 @receiver(post_delete, sender=BlogPost)
-def delete_image_after_delete_post(
-    sender: type[Any], instance: Any, **kwargs: Any
-) -> None:
+def delete_image_after_delete_post(sender: Any, instance: Any, **kwargs: Any) -> None:
     """
     При удалении объекта BlogPost:
     - удаляем файл изображения
@@ -37,12 +35,12 @@ def delete_image_after_delete_post(
 
 @receiver(pre_save, sender=BlogPost)
 def delete_old_image_after_update_post_image(
-    sender: type[Any], instance: Any, **kwargs: Any
+    sender: Any, instance: Any, **kwargs: Any
 ) -> None:
     """Удаляем старое фото поста при обновлении фото у объекта BlogPost"""
 
     # Если объект создаётся впервые — старого файла нет
-    if not instance.pk:
+    if instance._state.adding:
         return
 
     old_image = compare_old_and_new_file(instance, "image")
