@@ -12,8 +12,8 @@ def compare_old_and_new_file(instance: Any, field_name: str) -> Optional[FieldFi
     :param field_name: Строковое название поля FileField / ImageField
     """
 
-    # Если объект создаётся впервые — старого файла нет
-    if not instance.pk:
+    # Объект создаётся впервые — старого файла нет
+    if instance._state.adding:
         return None
 
     # Определяем класс модели
@@ -23,7 +23,7 @@ def compare_old_and_new_file(instance: Any, field_name: str) -> Optional[FieldFi
     new_file = cast(Optional[FieldFile], getattr(instance, field_name, None))
 
     # Проверяем, что новый файл есть
-    if not new_file:
+    if not new_file or not new_file.name:
         return None
 
     # Получаем старый объект модели из базы
@@ -36,10 +36,10 @@ def compare_old_and_new_file(instance: Any, field_name: str) -> Optional[FieldFi
     old_file = cast(Optional[FieldFile], getattr(old_instance, field_name, None))
 
     # Проверяем, что старый файл есть
-    if not old_file:
+    if not old_file or not old_file.name:
         return None
 
     # Если старый файл существует и он отличается от нового - возвращаем старый файл
-    if old_file and old_file != new_file:
+    if old_file.name != new_file.name:
         return old_file
     return None
