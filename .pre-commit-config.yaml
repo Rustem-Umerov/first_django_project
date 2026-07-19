@@ -24,4 +24,4 @@ repos:
         entry: poetry run isort
         language: system
         types: [python]
-        exclude: ^migrations/
+        exclude: ^.*/migrations/
