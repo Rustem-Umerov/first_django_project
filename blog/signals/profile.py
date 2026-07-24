@@ -2,6 +2,7 @@ from typing import Any
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 
@@ -12,16 +13,27 @@ from ..models import Profile
 
 
 @receiver(signal=post_save, sender=User)
-def create_profile(sender: Any, instance: Any, created: bool, **kwargs: Any) -> None:
-    """Создает объект Profile для объекта User"""
+def create_profile(sender: Any, instance: User, created: bool, **kwargs: Any) -> None:
+    """Создает объект Profile для объекта User, если его еще нет."""
 
-    if created:
-        Profile.objects.create(user=instance)
+    # Проверка, что объект новый
+    if not created:
+        return None
+
+    def _create_profile() -> None:
+        """
+        Если Inline форма создала объект Profile, то данная функция, просто, возвращает этот объект Profile.
+        Если объект Profile не был создан раньше, то данная функция создает его.
+        """
+
+        Profile.objects.get_or_create(user=instance)
+
+    transaction.on_commit(_create_profile)
 
 
 @receiver(signal=post_delete, sender=Profile)
 def delete_avatar_after_delete_profile(
-    sender: Any, instance: Any, **kwargs: Any
+    sender: Any, instance: Profile, **kwargs: Any
 ) -> None:
     """
     При удалении объекта Profile:
@@ -36,7 +48,7 @@ def delete_avatar_after_delete_profile(
     folder_path = get_folder_path(instance.avatar)
 
     # Определяем id объекта до удаления файла
-    obj_id = instance.pk
+    obj_id = instance.user.pk
 
     # Сначала удаляем файл через Django-хранилище
     delete_file(instance.avatar)
@@ -46,8 +58,8 @@ def delete_avatar_after_delete_profile(
 
 
 @receiver(pre_save, sender=Profile)
-def delete_old_image_after_update_post_image(
-    sender: Any, instance: Any, **kwargs: Any
+def delete_old_image_after_update_profile_image(
+    sender: Any, instance: Profile, **kwargs: Any
 ) -> None:
     """Удаляем старую аватарку при обновлении фото у объекта Profile"""
 
@@ -65,7 +77,7 @@ def delete_old_image_after_update_post_image(
 
 
 @receiver(pre_save, sender=Profile)
-def delete_avatar_on_clear(sender: Any, instance: Any, **kwargs: Any) -> None:
+def delete_avatar_on_clear(sender: Any, instance: Profile, **kwargs: Any) -> None:
     """Удаляет аватарку, если пользователь в админке поставил галочку Clear на поле avatar."""
 
     # Если Django загружает фикстуры (loaddata), то сигнал должен быть отключён
