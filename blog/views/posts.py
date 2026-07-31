@@ -28,12 +28,9 @@ class BlogPostUpdateView(LoginRequiredMixin, UpdateView):  # type: ignore[type-a
     def get_success_url(self) -> str:
         """Куда перенаправлять после успешного редактирования."""
 
-        post = self.object
-
-        if post.is_published:
-            return reverse_lazy("blog_account:my_published")  # type: ignore[return-value]
-        else:
-            return reverse_lazy("blog_account:my_drafts")  # type: ignore[return-value]
+        return reverse_lazy(
+            "blog_account:my_post_detail", kwargs={"pk": self.object.pk}
+        )  # type: ignore[return-value]
 
 
 class ChangeStatusView(LoginRequiredMixin, View):
