@@ -39,7 +39,11 @@
 
 
                 <!-- Кнопка Выйти -->
-                <form action="{% url 'logout' %}" method="post" class="d-inline">
+                {% if in_account %}
+                    <form action="{% url 'logout' %}?next={% url public_url_name %}" method="post" class="d-inline">
+                {% else %}
+                    <form action="{% url 'logout' %}" method="post" class="d-inline">
+                {% endif %}
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger">
                         Выйти
