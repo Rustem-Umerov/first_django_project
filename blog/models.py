@@ -60,3 +60,17 @@ class Profile(models.Model):
 
     def __str__(self) -> str:
         return self.nickname or self.user.username
+
+
+class PostView(models.Model):
+    """Показывает просмотры поста авторизованным пользователем и время просмотра."""
+
+    post = models.ForeignKey(BlogPost, on_delete=models.CASCADE, related_name="views")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="post_views")
+    viewed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "post")
+
+    def __str__(self) -> str:
+        return f"{self.post} — {self.user} — {self.viewed_at}"
