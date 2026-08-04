@@ -44,7 +44,7 @@ class BlogPost(models.Model):
 class Profile(models.Model):
     """Модель профиля пользователя."""
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     avatar = models.ImageField(upload_to=profile_avatar_path, blank=True, null=True)
     nickname = models.CharField(max_length=50, unique=True)
 
@@ -65,9 +65,16 @@ class Profile(models.Model):
 class PostView(models.Model):
     """Показывает просмотры поста авторизованным пользователем и время просмотра."""
 
-    post = models.ForeignKey(BlogPost, on_delete=models.CASCADE, related_name="views")
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="post_views")
-    viewed_at = models.DateTimeField(auto_now_add=True)
+    post = models.ForeignKey(
+        BlogPost, on_delete=models.CASCADE, related_name="views", verbose_name="Пост"
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="post_views",
+        verbose_name="Пользователь",
+    )
+    viewed_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата просмотра")
 
     class Meta:
         unique_together = ("user", "post")
