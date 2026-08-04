@@ -66,8 +66,8 @@
                 {{ post.title }}
             </h3>
 
-            <!-- Дата -->
-            <p class="text-muted small mb-2">{{ post.created_at|date:"d.m.Y" }}</p>
+            <!-- Дата и Количество просмотров-->
+            <p class="text-muted small mb-2">{{ post.created_at|date:"d.m.Y" }} &nbsp;|&nbsp; Количество просмотров {{ post.count_views }}</p>
 
             <!-- Описание (фиксированная высота + скрытие лишнего текста) -->
             <div class="overflow-hidden" style="max-height: 4.5rem;">

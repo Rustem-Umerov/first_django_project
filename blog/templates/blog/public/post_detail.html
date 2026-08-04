@@ -28,8 +28,8 @@
     <!-- Заголовок -->
     <h1 class="fw-bold mb-3">{{ post.title }}</h1>
 
-    <!-- Дата -->
-    <p class="text-muted mb-4">{{ post.created_at|date:"d.m.Y H:i" }}</p>
+    <!-- Дата и Количество просмотров-->
+    <p class="text-muted mb-4">{{ post.created_at|date:"d.m.Y H:i" }} &nbsp;|&nbsp; Количество просмотров {{ post.count_views }}</p>
 
     <!-- Текст -->
     <div class="fs-5 lh-lg mb-5" style="white-space: pre-line;">
