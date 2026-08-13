@@ -2,6 +2,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
+from .enums import EventType
+
 
 class Event(models.Model):
     """Фиксирует определенные событие для любых сущностей."""
@@ -18,7 +20,9 @@ class Event(models.Model):
     content_object = GenericForeignKey("content_type", "object_id")
 
     # Тип события (что произошло?)
-    event_type = models.CharField(max_length=100, verbose_name="Тип события")
+    event_type = models.CharField(
+        max_length=100, choices=EventType.choices(), verbose_name="Тип события"
+    )
 
     # Когда событие произошло
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата события")
