@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <body style="font-family: Arial, sans-serif;">
+
+    <h2>Ваш пост набрал {{ count_views }} просмотров!</h2>
+
+    <p>Здравствуйте, {{ author_name }}.</p>
+
+    <p>
+      Ваш пост <strong>"{{ title_post }}"</strong> достиг отметки в
+      <strong>{{ count_views }}</strong> просмотров.
+    </p>
+
+    <p>
+      Вы можете посмотреть пост по ссылке:<br>
+      <a href="{{ post_url }}">{{ post_url }}</a>
+    </p>
+
+    <hr>
+
+    <p style="font-size: 12px; color: #777;">
+      ID поста: {{ post_id }}<br>
+      Тип события: {{ event_type }}<br>
+      Время события: {{ time_event }}
+    </p>
+
+  </body>
+</html>

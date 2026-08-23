@@ -1,0 +1,8 @@
+Ваш пост "{{ title_post }}" набрал {{ count_views }} просмотров.
+
+Автор: {{ author_name }}
+Ссылка на пост: {{ post_url }}
+
+ID поста: {{ post_id }}
+Тип события: {{ event_type }}
+Время события: {{ time_event }}
