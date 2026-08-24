@@ -1,3 +1,5 @@
+from typing import Optional
+
 from django.contrib.contenttypes.models import ContentType
 
 from blog.models import BlogPost
@@ -6,7 +8,7 @@ from .enums import EventType
 from .models import Event
 
 
-def handle_post_view_event(post: BlogPost) -> bool:
+def handle_post_view_event(post: BlogPost) -> Optional[Event]:
     """
     Проверяет количество просмотров у поста.
     Проверяет не записано ли это событие в таблице Event.
@@ -20,18 +22,17 @@ def handle_post_view_event(post: BlogPost) -> bool:
     view_count = post.count_views
 
     if view_count != 100:
-        return False
+        return None
 
     if Event.objects.filter(
         content_type=ContentType.objects.get_for_model(post),
         object_id=post.pk,
         event_type=EventType.POST_REACHED_100_VIEWS.value,
     ).exists():
-        return False
+        return None
 
-    Event.objects.create(
+    return Event.objects.create(
         content_type=ContentType.objects.get_for_model(post),
         object_id=post.pk,
         event_type=EventType.POST_REACHED_100_VIEWS.value,
     )
-    return True
