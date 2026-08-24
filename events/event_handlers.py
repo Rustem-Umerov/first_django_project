@@ -32,6 +32,7 @@ class EventHandler:
     def __init__(
         self,
         event: Event,
+        max_attempts: int = 3,
     ) -> None:
         """
         Инициализирует обработчик события.
@@ -41,6 +42,7 @@ class EventHandler:
         """
 
         self.event: Event = event
+        self.max_attempts = max_attempts
         self.content_object: Any = event.content_object
         self.context: dict[str, Any] = {}
 
@@ -110,6 +112,8 @@ class EventHandler:
         """
         Главный метод. Запускает весь процесс обработки события.
         Вызывает prepare() - вызывает send() - вызывает mark_processed()
+        Делает max_attempts попыток отправки письма.
+        Если хотя бы одна успешна — событие помечается как обработанное.
 
         :return: Результат отправки
         """
@@ -118,11 +122,14 @@ class EventHandler:
         self.prepare()
 
         # 2. Отправка письма
-        sent_count = self.send()
+        for attempt in range(self.max_attempts):
+            sent_count = self.send()
 
-        # 3. Отмечает событие как обработанное
-        if sent_count > 0:
-            self.mark_processed()
+            if sent_count > 0:
+                # 3. Отмечает событие как обработанное
+                self.mark_processed()
 
-        # 4. Возврат результата отправки
-        return sent_count
+                # 4. Возврат результата отправки
+                return sent_count
+
+        raise Exception(f"Письмо не отправлено после {self.max_attempts} попыток")
