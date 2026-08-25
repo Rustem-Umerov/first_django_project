@@ -98,8 +98,11 @@ class EventHandler:
             self.EVENT_TYPE_DICT_AND_WRAPPER_FOR_SENDING
         )
 
-        sent_count: int = wrapper_function(context=self.context)
-        return sent_count
+        try:
+            sent_count: int = wrapper_function(context=self.context)
+            return sent_count
+        except Exception:
+            raise
 
     def mark_processed(self) -> None:
         """Отмечает событие как обработанное."""
@@ -123,7 +126,11 @@ class EventHandler:
 
         # 2. Отправка письма
         for attempt in range(self.max_attempts):
-            sent_count = self.send()
+            try:
+                sent_count = self.send()
+            except Exception as e:
+                print(f"Попытка {attempt + 1} — ошибка сервиса: {e}")
+                continue
 
             if sent_count > 0:
                 # 3. Отмечает событие как обработанное
