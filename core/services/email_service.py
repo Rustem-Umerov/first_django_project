@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives, get_connection
 from django.template.loader import render_to_string
 
 from config import settings
@@ -60,6 +60,8 @@ class EmailService:
             to_email_list = [to_email] if isinstance(to_email, str) else to_email
             reply_to_list = [reply_to] if isinstance(reply_to, str) else reply_to
 
+            connection = get_connection()
+
             # Создание письма
             email = EmailMultiAlternatives(
                 subject=subject,
@@ -67,6 +69,7 @@ class EmailService:
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 to=to_email_list,
                 reply_to=reply_to_list,
+                connection=connection,
             )
 
             # HTML-версия
@@ -78,7 +81,9 @@ class EmailService:
                     email.attach(name, content, mime)
 
             # Отправка письма
+            print("Отправляю письмо...")
             sent_count = email.send()
+            print("Результат отправки:", sent_count)
             return sent_count
 
         except Exception as e:
