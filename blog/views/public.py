@@ -4,9 +4,6 @@ from django.db.models import Q, QuerySet
 from django.utils import timezone
 from django.views.generic import DetailView, ListView
 
-from events.event_handlers import EventHandler
-from events.services import handle_post_view_event
-
 from ..models import BlogPost, PostView
 
 
@@ -71,14 +68,6 @@ class BlogPostDetailView(DetailView):  # type: ignore[type-arg]
                 PostView.objects.create(post=post, user=user)
                 post.count_views += 1  # Увеличиваем счетчик у поста (объект BlogPost)
                 post.save()  # Сохраняем
-
-                # Проверка поста - проверка количество просмотров и есть ли оно в базе Event,
-                # если просмотров = 100 и данного поста с таким событием нет в базе Event, то создается объект Event
-                event_created = handle_post_view_event(post)
-                if event_created:
-                    # Если объект Event создан, создается обработчик события EventHandler
-                    handler = EventHandler(event=event_created)
-                    handler.handle()
 
         # --- Неавторизованный пользователь ---
         else:
