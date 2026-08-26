@@ -62,6 +62,10 @@ def wrapper_post_reached_100_views(context: dict[str, Any]) -> int:
     # 3. Получатель
     to_email = context["author_email"]
 
+    # Если нет адреса получателя, то отправка не возможна
+    if not to_email:
+        return 0
+
     # 4. Дополнительные параметры
     attachments = None
     reply_to = None
@@ -79,4 +83,4 @@ def wrapper_post_reached_100_views(context: dict[str, Any]) -> int:
         attachments=attachments,
         reply_to=reply_to,
     )
-    return sent_count
+    return sent_count or 0

@@ -33,7 +33,7 @@ class EmailService:
         context: Optional[dict[str, Any]] = None,
         attachments: Optional[list[tuple[str, bytes, str]]] = None,
         reply_to: Optional[str | list[str]] = None,
-    ) -> int:
+    ) -> Optional[int]:
         """
         Метод для отправки email письма на основе EmailMultiAlternatives.
         Рендерит шаблоны (текстовый и html).
@@ -57,9 +57,15 @@ class EmailService:
             text_context = render_to_string(template_txt, context or {})
             html_context = render_to_string(template_html, context or {})
 
+            # Приводит адреса в список
             to_email_list = [to_email] if isinstance(to_email, str) else to_email
             reply_to_list = [reply_to] if isinstance(reply_to, str) else reply_to
 
+            # Проверяет, что поле "to" не пустое
+            if not to_email_list:
+                return None
+
+            # Создаёт SMTP‑подключение
             connection = get_connection()
 
             # Создание письма
