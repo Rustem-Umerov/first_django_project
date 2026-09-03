@@ -3,13 +3,13 @@
 
 {% block content %}
 
-{% include "catalog/includes/navbar.html" %}
+{% include "catalog/public/includes/navbar.html" %}
 {% block hero %}{% endblock %}
 {% block pre_container %}{% endblock %}
 
 <div class="container">
     {% block catalog_content %}{% endblock %}
-    {% include "catalog/includes/footer.html" %}
+    {% include "catalog/public/includes/footer.html" %}
 </div>
 
 {% endblock %}

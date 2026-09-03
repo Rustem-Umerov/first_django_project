@@ -1,13 +1,14 @@
-{% extends "catalog/public/base.html" %}
+{% extends "account_base.html" %}
 
-{% block hero %}
-{% include "catalog/public/includes/hero.html" %}
+{% block account_sidebar %}
+    {% include "catalog/dashboard/includes/catalog_dashboard_menu.html" %}
 {% endblock %}
 
-{% block catalog_content %}
-<div class="row  row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 text-center">
+{% block account_content %}
+
+<div class="row g-4 text-center">
     {% for product in page_obj %}
-    <div class="col">
+
         <div class="card h-100 d-flex flex-column">
             <div class="card-header">
                 <h4 class="my-0 font-weight-normal">{{ product.name }}</h4>
@@ -19,13 +20,13 @@
                     {{ product.description|truncatechars:100 }}
                 </p>
 
-                <a href="{% url 'catalog_public:product_detail' product.pk %}"
+                <a href="{% url 'catalog_dashboard:dashboard_product_detail' product.pk %}"
                    class="btn btn-lg btn-block btn-outline-primary mt-auto">
-                    Купить
+                    Подробнее
                 </a>
             </div>
         </div>
-    </div>
+
     {% empty %}
     <div class="col-12">
         <div class="alert alert-info text-center mt-4">
@@ -34,6 +35,11 @@
     </div>
     {% endfor %}
 </div>
+
+
+
+
+
 
 <nav aria-label="Pagination" class="mt-4">
     <ul class="pagination justify-content-center align-items-center">
@@ -71,4 +77,8 @@
     </ul>
 
 </nav>
+
+
+
+
 {% endblock %}
