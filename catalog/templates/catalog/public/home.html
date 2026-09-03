@@ -19,7 +19,7 @@
                     {{ product.description|truncatechars:100 }}
                 </p>
 
-                <a href="{% url 'catalog:product_detail' product.pk %}"
+                <a href="{% url 'catalog_public:product_detail' product.pk %}"
                    class="btn btn-lg btn-block btn-outline-primary mt-auto">
                     Купить
                 </a>
