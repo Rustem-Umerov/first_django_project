@@ -29,7 +29,6 @@ class Product(models.Model):
     Хранит информацию о товаре, его категории, цене и датах создания/обновления.
     """
 
-    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=150, verbose_name="Название продукта")
     description = models.TextField(verbose_name="Описание продукта")
     image = models.ImageField(

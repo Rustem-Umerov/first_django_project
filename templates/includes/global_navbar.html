@@ -1,0 +1,65 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container">
+
+        <!-- Левая часть -->
+        <a class="btn btn-outline-light" href="{% url 'home' %}">
+            К списку приложений
+        </a>
+
+        <!-- Правая часть -->
+        <div class="d-flex">
+
+
+
+            <!-- Условие для Личного кабинет -->
+            {% if user.is_authenticated %}
+
+                {% if has_account %}
+
+                    {% if in_account %}
+
+                        <!-- Личный кабинет -->
+                        <a class="btn btn-outline-light me-2"
+                           href="{% url public_url_name %}">
+                            Выйти в публичную часть
+                        </a>
+
+                    {% else %}
+
+                        <!-- Публичная часть -->
+                        <a class="btn btn-outline-light me-2"
+                           href="{% url account_url_name %}">
+                            Личный кабинет
+                        </a>
+
+                    {% endif %}
+
+                {% endif %}
+
+
+
+                <!-- Кнопка Выйти -->
+                {% if in_account %}
+                    <form action="{% url 'logout' %}?next={% url public_url_name %}" method="post" class="d-inline">
+                {% else %}
+                    <form action="{% url 'logout' %}" method="post" class="d-inline">
+                {% endif %}
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        Выйти
+                    </button>
+                </form>
+
+            {% else %}
+
+                <!-- Кнопка Войти -->
+                <a class="btn btn-success"
+                   href="{% url 'login' %}?next={{ request.path }}">
+                    Войти
+                </a>
+
+            {% endif %}
+
+        </div>
+    </div>
+</nav>

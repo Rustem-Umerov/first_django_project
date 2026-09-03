@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Главная</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+{% include "includes/messages.html" %}
+
+<div class="container mt-5">
+
+    <div class="mt-4">
+        {% if request.user.is_authenticated %}
+        <!-- Авторизованный: показываем пользователя + выход -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body d-flex align-items-center justify-content-between">
+
+                    <div class="d-flex align-items-center">
+                        <!-- Аватар -->
+                        <img src="{{ request.user.profile.avatar_url }}"
+                             class="rounded-circle me-3" width="60" height="60">
+
+                        <!-- Никнейм -->
+                        <div>
+                            <h5 class="mb-0">{{ request.user.profile.nickname|default:request.user.username }}</h5>
+                            <small class="text-muted">Вы авторизованы</small>
+                        </div>
+                    </div>
+
+                    <!-- Кнопка выхода -->
+                    <a href="{% url 'logout' %}" class="btn btn-outline-danger">Выйти</a>
+                </div>
+            </div>
+        {% else %}
+        <!-- Не авторизованный: вход + (пока фейковая) регистрация -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0">Вы не авторизованы</h5>
+                    <div>
+                        <a href="{% url 'login' %}" class="btn btn-success me-2">Войти</a>
+                        <a href="#" class="btn btn-secondary">Регистрация</a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+
+
+    <h2 class="mb-4">Выберите приложение</h2>
+
+    <div class="card shadow-sm"
+         style="height: 60vh; overflow-y: auto; border: none; background-color: #f8f9fa;">
+
+        <ul class="list-group list-group-flush">
+
+            <li class="list-group-item border rounded-3 shadow-sm mb-3 d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Каталог</span>
+                <a href="/catalog/" class="btn btn-primary btn-sm">Перейти</a>
+            </li>
+
+            <li class="list-group-item border rounded-3 shadow-sm mb-3 d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Блог</span>
+                <a href="/blog/" class="btn btn-primary btn-sm">Перейти</a>
+            </li>
+
+        </ul>
+    </div>
+
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,44 @@
+{% extends "blog/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/back_button.css' %}">
+{% endblock %}
+
+{% block blog_content %}
+<div class="container-xl mt-5">
+
+    <!-- Кнопка назад на всю левую часть экрана -->
+    <a href="{% url 'blog_public:post_list' %}"
+       class="back-strip position-fixed top-0 start-0 h-100 z-3 d-flex align-items-center justify-content-center">
+        <span class="back-arrow">←</span>
+    </a>
+
+    <!-- Фото -->
+    {% if post.image %}
+    <div class="ratio ratio-21x9 mb-4 rounded overflow-hidden">
+        <img src="{{ post.image.url }}" class="w-100 h-100 object-fit-cover" alt="{{ post.title }}">
+    </div>
+    {% else %}
+    <div class="ratio ratio-21x9 mb-4 rounded overflow-hidden">
+        <img src="/static/img/no-image.png" class="w-100 h-100 object-fit-cover" alt="Нет фото">
+    </div>
+    {% endif %}
+
+    <!-- Заголовок -->
+    <h1 class="fw-bold mb-3">{{ post.title }}</h1>
+
+    <!-- Дата и Количество просмотров-->
+    <p class="text-muted mb-4">{{ post.created_at|date:"d.m.Y H:i" }} &nbsp;|&nbsp; Количество просмотров {{ post.count_views }}</p>
+
+    <!-- Текст -->
+    <div class="fs-5 lh-lg mb-5" style="white-space: pre-line;">
+        {{ post.content }}
+    </div>
+
+</div>
+
+<!-- Пробел в самом внизу -->
+<div class="my-5"></div>
+
+{% endblock %}
