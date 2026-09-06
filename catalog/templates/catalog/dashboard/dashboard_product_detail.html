@@ -45,11 +45,48 @@
                 Редактировать
             </a>
 
-            <a href="{% url 'catalog_dashboard:dashboard_product_delete' product.pk %}"
-               class="btn btn-danger btn-lg">
-                Удалить
-            </a>
+
+                    <!-- Кнопка Удалить -->
+            <button type="button"
+                    class="btn btn-danger btn-lg"
+                    data-bs-toggle="modal"
+                    data-bs-target="#confirmDeleteModal">
+                🗑 Удалить
+            </button>
+
         </div>
     </div>
+</div>
+
+
+
+<!-- МОДАЛКА: КНОПКА УДАЛИТЬ -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Удалить продукт?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        Вы уверены, что хотите удалить продукт:
+        <strong>{{ product.name|truncatechars:45 }}</strong>?
+        <br>
+        Это действие необратимо.
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+
+        <form method="post" action="{% url 'catalog_dashboard:dashboard_product_delete' product.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Да, удалить</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
 </div>
 {% endblock %}

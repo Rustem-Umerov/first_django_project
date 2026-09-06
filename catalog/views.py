@@ -2,7 +2,15 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DetailView, ListView, TemplateView, View
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    TemplateView,
+    UpdateView,
+    View,
+)
 
 from .forms import ProductForm
 from .models import Contact, Product
@@ -88,7 +96,7 @@ class ProductDetailView(DetailView):
 
 
 # Классовый контролер для страницы создания нового продукта
-class ProductCreateView(CreateView):
+class DashboardProductCreateView(LoginRequiredMixin, CreateView):
     """Страница создания нового продукта."""
 
     model = Product
@@ -131,10 +139,12 @@ class ProductCreateView(CreateView):
     def get_success_url(self):
         """Куда перенаправлять после успешного создания."""
 
-        return reverse_lazy("catalog:product_detail", kwargs={"pk": self.object.pk})
+        return reverse_lazy(
+            "catalog_dashboard:dashboard_product_detail", kwargs={"pk": self.object.pk}
+        )
 
 
-class DashboardProductsListView(ListView):
+class DashboardProductsListView(LoginRequiredMixin, ListView):
     """Страница каталога в личном кабинете с пагинацией."""
 
     model = Product
@@ -160,7 +170,7 @@ class DashboardProductsListView(ListView):
         return context
 
 
-class AccountDashboardView(LoginRequiredMixin, TemplateView):
+class DashboardView(LoginRequiredMixin, TemplateView):
     """Главная страница Личного кабинета"""
 
     template_name = "catalog/dashboard/dashboard_home.html"
@@ -172,3 +182,26 @@ class DashboardProductDetailView(LoginRequiredMixin, DetailView):  # type: ignor
     model = Product
     template_name = "catalog/dashboard/dashboard_product_detail.html"
     context_object_name = "product"
+
+
+class DashboardProductUpdateView(LoginRequiredMixin, UpdateView):
+    """Обновление продукта"""
+
+    model = Product
+    form_class = ProductForm
+    template_name = "catalog/dashboard/dashboard_product_update.html"
+
+    def get_success_url(self):
+        """Куда перенаправлять после успешного обновления."""
+
+        return reverse_lazy(
+            "catalog_dashboard:dashboard_product_detail", kwargs={"pk": self.object.pk}
+        )
+
+
+class DashboardProductDeleteView(LoginRequiredMixin, DeleteView):
+    """Удаление продукта"""
+
+    model = Product
+    context_object_name = "product"
+    success_url = reverse_lazy("catalog_dashboard:dashboard_products_list")
