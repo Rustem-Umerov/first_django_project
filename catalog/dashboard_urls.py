@@ -1,16 +1,18 @@
 from django.urls import path
 
 from .views import (
-    AccountDashboardView,
+    DashboardProductCreateView,
+    DashboardProductDeleteView,
     DashboardProductDetailView,
     DashboardProductsListView,
-    ProductCreateView,
+    DashboardProductUpdateView,
+    DashboardView,
 )
 
 app_name = "catalog_dashboard"
 
 urlpatterns = [
-    path("dashboard/", AccountDashboardView.as_view(), name="dashboard"),
+    path("dashboard/", DashboardView.as_view(), name="dashboard"),
     path(
         "products_list/",
         DashboardProductsListView.as_view(),
@@ -22,8 +24,18 @@ urlpatterns = [
         name="dashboard_product_detail",
     ),
     path(
-        "product/create/", ProductCreateView.as_view(), name="dashboard_product_create"
+        "product/create/",
+        DashboardProductCreateView.as_view(),
+        name="dashboard_product_create",
     ),
-    # path("products/<int:pk>/edit/", ProductUpdateView.as_view(), name="dashboard_product_edit"),
-    # path("products/<int:pk>/delete/", ProductDeleteView.as_view(), name="dashboard_product_delete"),
+    path(
+        "products/<int:pk>/edit/",
+        DashboardProductUpdateView.as_view(),
+        name="dashboard_product_edit",
+    ),
+    path(
+        "products/<int:pk>/delete/",
+        DashboardProductDeleteView.as_view(),
+        name="dashboard_product_delete",
+    ),
 ]
