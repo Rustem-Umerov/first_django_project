@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 
-from .helpers.paths import blogpost_image_path, profile_avatar_path
+# from .helpers.paths import blogpost_image_path, profile_avatar_path
 
 
 class BlogPost(models.Model):
@@ -17,8 +17,19 @@ class BlogPost(models.Model):
 
     title = models.CharField(max_length=200, verbose_name="Заголовок")
     content = models.TextField(verbose_name="Содержимое")
+
+    def get_image_path(self, filename: str) -> str:
+        """
+        Формирует путь к месту хранения файла для модели BlogPost
+
+        :param filename: Название файл
+        :return: Путь к месту хранения файла
+        """
+
+        return f"blog/blogpost/{self.pk}/{filename}"
+
     image = models.ImageField(
-        upload_to=blogpost_image_path,
+        upload_to=get_image_path,
         verbose_name="Изображение поста",
         blank=True,
         null=True,
@@ -45,7 +56,18 @@ class Profile(models.Model):
     """Модель профиля пользователя."""
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    avatar = models.ImageField(upload_to=profile_avatar_path, blank=True, null=True)
+
+    def get_avatar_path(self, filename: str) -> str:
+        """
+        Формирует путь к месту хранения файла для модели Profile
+
+        :param filename: Название файл
+        :return: Путь к месту хранения файла
+        """
+
+        return f"avatars/{self.user.pk}/{filename}"
+
+    avatar = models.ImageField(upload_to=get_avatar_path, blank=True, null=True)
     nickname = models.CharField(max_length=50, unique=True)
 
     @property
