@@ -3,9 +3,10 @@ from typing import Any
 from django.db.models.signals import post_delete, pre_save
 from django.dispatch import receiver
 
-from ..helpers.files import delete_file, delete_folder
-from ..helpers.images import compare_old_and_new_file
-from ..helpers.paths import get_folder_path
+from core.helpers.files import delete_file, delete_folder
+from core.helpers.images import compare_old_and_new_file
+from core.helpers.paths import get_folder_path
+
 from ..models import BlogPost
 
 
