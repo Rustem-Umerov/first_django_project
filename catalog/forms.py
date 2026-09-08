@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django import forms
 from django.core.exceptions import ValidationError
 
@@ -78,3 +80,16 @@ class ProductForm(forms.ModelForm):
             )
 
         return description
+
+    def clean_price(self) -> Decimal:
+        """Проверяет, что цена НЕ отрицательная."""
+
+        price = self.cleaned_data.get("price")
+
+        if price is None:
+            raise ValidationError("Поле 'price' не прошло проверку.")
+
+        if price < 0:
+            raise ValidationError("Цена не может быть отрицательной")
+
+        return price
