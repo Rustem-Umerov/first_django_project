@@ -51,6 +51,30 @@ class ProductForm(forms.ModelForm):
             ),
         }
 
+    def __init__(self, *args, **kwargs) -> None:
+        """Добавляет Bootstrap‑классы к виджетам формы для единообразной стилизации полей."""
+
+        super(ProductForm, self).__init__(*args, **kwargs)
+        self.fields["name"].widget.attrs.update(
+            {"class": "form-control", "placeholder": "Введите имя"}
+        )
+        self.fields["description"].widget.attrs.update(
+            {"class": "form-control", "placeholder": "Введите описание"}
+        )
+        self.fields["image"].widget.attrs.update(
+            {
+                "class": "form-control",
+            }
+        )
+        self.fields["category"].widget.attrs.update(
+            {
+                "class": "form-select",
+            }
+        )
+        self.fields["price"].widget.attrs.update(
+            {"class": "form-control", "placeholder": "Укажите цену"}
+        )
+
     def clean_name(self) -> str:
         """Проверяет наличие запрещенных слов в поле 'name'"""
 
