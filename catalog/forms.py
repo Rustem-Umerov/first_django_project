@@ -1,7 +1,9 @@
 from decimal import Decimal
+from typing import Optional
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.db.models.fields.files import ImageFieldFile
 
 from core.validators import validate_bad_words
 
@@ -104,6 +106,29 @@ class ProductForm(forms.ModelForm):
             )
 
         return description
+
+    def clean_image(self) -> Optional[ImageFieldFile]:
+        """Валидирует фото продукта: проверяет размер и MIME‑тип."""
+
+        image = self.cleaned_data.get("image")
+
+        if image is None:
+            return image
+
+        # Проверка размера файла (5 МБ)
+        max_size = 5_242_880  # 5 * 1024 * 1024
+        if image.size > max_size:
+            raise ValidationError(
+                "Превышен максимальный размер фото продукта. Максимальный размер 5 242 880 байт."
+            )
+
+        # Проверка MIME‑типа (формат файла)
+        content_type = image.file.content_type
+        allowed_types = {"image/jpeg", "image/png"}
+        if content_type not in allowed_types:
+            raise ValidationError("Допустимы только JPEG и PNG.")
+
+        return image
 
     def clean_price(self) -> Decimal:
         """Проверяет, что цена НЕ отрицательная."""
