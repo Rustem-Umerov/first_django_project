@@ -31,11 +31,11 @@ class ProductAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
         pk появится уже после создания объекта.
         Поэтому мы сохраняем объект без фото. Потом, когда pk появится, мы добавляем в объект фото.
 
-        :param request:
-        :param obj:
-        :param form:
-        :param change:
-        :return:
+        :param request: Текущий HTTP‑запрос из админки
+        :param obj: экземпляр модели Product, который сохраняется
+        :param form: форма, содержащая обработанные данные и cleaned_data
+        :param change: флаг, показывающий, редактируется объект или создаётся впервые
+        :return: None
         """
 
         # Если объект новый (создаётся впервые)
