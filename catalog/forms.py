@@ -4,7 +4,10 @@ from typing import Optional
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models.fields.files import ImageFieldFile
+from PIL import Image, UnidentifiedImageError
 
+from core.helpers.files import delete_file, delete_folder
+from core.helpers.paths import get_folder_path
 from core.validators import validate_bad_words
 
 from .models import Product
@@ -108,9 +111,24 @@ class ProductForm(forms.ModelForm):
         return description
 
     def clean_image(self) -> Optional[ImageFieldFile]:
-        """Валидирует фото продукта: проверяет размер и MIME‑тип."""
+        """Валидирует фото продукта: проверяет размер и формат файла."""
 
         image = self.cleaned_data.get("image")
+
+        # Пользователь поставил галочку "Clear"
+        if image is False:
+            # Получаем путь к папке ДО удаления файла
+            folder_path = get_folder_path(self.instance.image)
+            if folder_path is None:
+                raise ValueError("Путь к папке определить не удалось.")
+
+            # Удаляем файл
+            delete_file(self.instance.image)
+
+            # Удаляем папку
+            delete_folder(folder_path, self.instance.pk)
+
+            return None
 
         if image is None:
             return image
@@ -122,10 +140,19 @@ class ProductForm(forms.ModelForm):
                 "Превышен максимальный размер фото продукта. Максимальный размер 5 242 880 байт."
             )
 
-        # Проверка MIME‑типа (формат файла)
-        content_type = image.file.content_type
-        allowed_types = {"image/jpeg", "image/png"}
-        if content_type not in allowed_types:
+        # Проверка формата файла
+        try:
+            img = Image.open(image)
+            img_format = img.format.lower()
+
+        except UnidentifiedImageError:
+            raise ValidationError("Файл не является изображением.")
+        except OSError:
+            raise ValidationError("Файл повреждён или имеет неверный формат.")
+        except Exception:
+            raise ValidationError("Не удалось обработать изображение.")
+
+        if img_format not in {"jpeg", "png"}:
             raise ValidationError("Допустимы только JPEG и PNG.")
 
         return image
