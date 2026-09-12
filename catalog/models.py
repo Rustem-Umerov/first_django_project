@@ -1,7 +1,5 @@
 from django.db import models
 
-from .utils import product_image_path
-
 
 class Category(models.Model):
     """
@@ -31,8 +29,19 @@ class Product(models.Model):
 
     name = models.CharField(max_length=150, verbose_name="Название продукта")
     description = models.TextField(verbose_name="Описание продукта")
+
+    def get_image_path(self, filename: str) -> str:
+        """
+        Формирует путь к месту хранения файла для модели Product
+
+        :param filename: Название файл
+        :return: Путь к месту хранения файла
+        """
+
+        return f"catalog/products/{self.pk}/{filename}"
+
     image = models.ImageField(
-        upload_to=product_image_path,
+        upload_to=get_image_path,
         verbose_name="Фото продукта",
         blank=True,
         null=True,

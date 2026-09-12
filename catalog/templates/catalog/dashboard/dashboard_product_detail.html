@@ -1,0 +1,92 @@
+{% extends "account_base.html" %}
+
+{% block account_sidebar %}
+    {% include "catalog/dashboard/includes/catalog_dashboard_menu.html" %}
+{% endblock %}
+
+{% block account_content %}
+<div class="row mt-4">
+    <!-- Изображение товара -->
+    <div class="col-md-4">
+        <div class="card">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+            {% else %}
+                <img src="https://via.placeholder.com/400x300" class="card-img-top" alt="Нет изображения">
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Информация о товаре -->
+    <div class="col-md-8">
+        <h1 class="mb-3">{{ product.name }}</h1>
+
+        <p class="lead text-break">{{ product.description }}</p>
+
+        <table class="table">
+            <tr>
+                <td><strong>Цена</strong></td>
+                <td>{{ product.price }} ₽</td>
+            </tr>
+            <tr>
+                <td><strong>Категория</strong></td>
+                <td>{{ product.category }}</td>
+            </tr>
+            <tr>
+                <td><strong>ID товара</strong></td>
+                <td>{{ product.pk }}</td>
+            </tr>
+        </table>
+
+        <!-- Кнопки действий -->
+        <div class="mt-4 d-flex gap-3">
+            <a href="{% url 'catalog_dashboard:dashboard_product_edit' product.pk %}"
+               class="btn btn-warning btn-lg">
+                Редактировать
+            </a>
+
+
+                    <!-- Кнопка Удалить -->
+            <button type="button"
+                    class="btn btn-danger btn-lg"
+                    data-bs-toggle="modal"
+                    data-bs-target="#confirmDeleteModal">
+                🗑 Удалить
+            </button>
+
+        </div>
+    </div>
+</div>
+
+
+
+<!-- МОДАЛКА: КНОПКА УДАЛИТЬ -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Удалить продукт?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        Вы уверены, что хотите удалить продукт:
+        <strong>{{ product.name|truncatechars:45 }}</strong>?
+        <br>
+        Это действие необратимо.
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+
+        <form method="post" action="{% url 'catalog_dashboard:dashboard_product_delete' product.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Да, удалить</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

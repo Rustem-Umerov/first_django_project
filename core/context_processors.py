@@ -35,8 +35,20 @@ def app_account_context(request: HttpRequest) -> dict[str, bool | str]:
 
     # КАТАЛОГ
     if "catalog" in namespace:
-        # сейчас у каталога нет личного кабинета
-        has_account = False
+        has_account = True
+
+        if namespace == "catalog_dashboard":
+            in_account = True
+            account_url_name = "catalog_dashboard:dashboard"
+            public_url_name = "catalog_public:home"
+
+        elif namespace == "catalog_public":
+            in_account = False
+            account_url_name = "catalog_dashboard:dashboard"
+            public_url_name = "catalog_public:home"
+
+        else:
+            raise ValueError(f"Unknown blog namespace: {namespace}")
 
     return {
         "has_account": has_account,

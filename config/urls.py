@@ -28,7 +28,8 @@ from account.views import logout_and_stay
 urlpatterns: List[Union[URLPattern, URLResolver]] = [
     path("", TemplateView.as_view(template_name="home.html"), name="home"),
     path("admin/", admin.site.urls),
-    path("catalog/", include("catalog.urls", namespace="catalog")),
+    path("catalog/", include("catalog.public_urls", namespace="catalog_public")),
+    path("catalog/", include("catalog.dashboard_urls", namespace="catalog_dashboard")),
     path("blog/", include("blog.public_urls", namespace="blog_public")),
     path("blog/my/", include("blog.account_urls", namespace="blog_account")),
     path("accounts/", include("django.contrib.auth.urls")),

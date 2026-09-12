@@ -1,0 +1,34 @@
+{% extends "account_base.html" %}
+
+{% block account_sidebar %}
+    {% include "catalog/dashboard/includes/catalog_dashboard_menu.html" %}
+{% endblock %}
+
+{% block account_content %}
+
+
+<div class="col-md-10 offset-md-1">
+
+    <h1 class="mb-4">Редактировать товар</h1>
+
+    <form method="post" enctype="multipart/form-data" class="card card-body shadow-sm">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <div class="mt-4 d-flex gap-3">
+            <button type="submit" class="btn btn-primary btn-lg">
+                Сохранить изменения
+            </button>
+
+            <a href="{% url 'catalog_dashboard:dashboard_product_detail' product.pk %}"
+               class="btn btn-secondary btn-lg">
+                Отмена
+            </a>
+        </div>
+    </form>
+
+</div>
+
+
+{% endblock %}

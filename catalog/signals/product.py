@@ -7,15 +7,15 @@ from core.helpers.files import delete_file, delete_folder
 from core.helpers.images import compare_old_and_new_file
 from core.helpers.paths import get_folder_path
 
-from ..models import BlogPost
+from ..models import Product
 
 
-@receiver(post_delete, sender=BlogPost)
-def delete_image_after_delete_post(
-    sender: Any, instance: BlogPost, **kwargs: Any
+@receiver(post_delete, sender=Product)
+def delete_image_after_delete_product(
+    sender: Any, instance: Product, **kwargs: Any
 ) -> None:
     """
-    При удалении объекта BlogPost:
+    При удалении объекта Product:
     - удаляем файл изображения
     - удаляем папку с названием (pk), если она безопасна
     """
@@ -36,11 +36,11 @@ def delete_image_after_delete_post(
     delete_folder(folder_path, obj_id)
 
 
-@receiver(pre_save, sender=BlogPost)
-def delete_old_image_after_update_post_image(
-    sender: Any, instance: BlogPost, **kwargs: Any
+@receiver(pre_save, sender=Product)
+def delete_old_image_after_update_product_image(
+    sender: Any, instance: Product, **kwargs: Any
 ) -> None:
-    """Удаляем старое фото поста при обновлении фото у объекта BlogPost"""
+    """Удаляем старое фото продукта при обновлении фото у объекта Product"""
 
     # Если объект создаётся впервые — старого файла нет
     if instance._state.adding:

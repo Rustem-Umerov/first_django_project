@@ -1,4 +1,4 @@
-{% extends "catalog/base.html" %}
+{% extends "catalog/public/base.html" %}
 
 {% block pre_container %}
 <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
@@ -20,7 +20,7 @@
 {% endif %}
 
 {% for contact in contacts %}
-<div class="card mb-3">
+<div class="card mb-3 mx-5">
     <div class="card-body">
         <h5 class="card-title">{{ contact.name }}</h5>
         <p class="card-text"><strong>Телефон:</strong> {{ contact.phone }}</p>

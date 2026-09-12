@@ -1,8 +1,10 @@
-{% extends "catalog/base.html" %}
+{% extends "account_base.html" %}
 
-{% block title %}Добавить продукт{% endblock %}
+{% block account_sidebar %}
+    {% include "catalog/dashboard/includes/catalog_dashboard_menu.html" %}
+{% endblock %}
 
-{% block catalog_content %}
+{% block account_content %}
 <div class="container mt-4">
     <h1 class="mb-4">Добавить новый продукт</h1>
 
