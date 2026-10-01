@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "catalog.apps.CatalogConfig",
     "blog.apps.BlogConfig",
     "events.apps.EventsConfig",
+    "users.apps.UsersConfig",
 ]
 
 MIDDLEWARE = [
