@@ -1,1 +1,1 @@
-from . import blogpost, profile  # noqa: F401,F403
+from . import blogpost  # noqa: F401,F403
