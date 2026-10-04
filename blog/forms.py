@@ -11,7 +11,7 @@ from .models import BlogPost
 
 class BlogPostForm(forms.ModelForm):  # type: ignore[type-arg]
     """
-    Форма для создания и редактирования продуктов.
+    Форма для создания и редактирования постов.
     Основана на модели BlogPost.
     """
 
@@ -31,7 +31,7 @@ class BlogPostForm(forms.ModelForm):  # type: ignore[type-arg]
 
     def clean_image(self) -> Optional[ImageFieldFile]:
         """
-        Валидирует фото продукта: если пользователь поставил галочку Clear(на сайте), то файл и папка будут удалены.
+        Валидирует фото поста: если пользователь поставил галочку Clear(на сайте), то файл и папка будут удалены.
         """
 
         image = self.cleaned_data.get("image")
