@@ -19,12 +19,12 @@
 
                     <div class="d-flex align-items-center">
                         <!-- Аватар -->
-                        <img src="{{ request.user.profile.avatar_url }}"
+                        <img src="{{ request.user.avatar_url }}"
                              class="rounded-circle me-3" width="60" height="60">
 
                         <!-- Никнейм -->
                         <div>
-                            <h5 class="mb-0">{{ request.user.profile.nickname|default:request.user.username }}</h5>
+                            <h5 class="mb-0">{{ request.user.username }}</h5>
                             <small class="text-muted">Вы авторизованы</small>
                         </div>
                     </div>

@@ -13,7 +13,7 @@ class Event(models.Model):
         ContentType, on_delete=models.CASCADE, verbose_name="Тип сущности"
     )
 
-    # ID конкретного объекта (post.id, profile.id и т.д.)
+    # ID конкретного объекта (post.id, CustomUser.id и т.д.)
     object_id = models.PositiveIntegerField(verbose_name="ID объекта")
 
     # Связка content_type + object_id → реальный объект
