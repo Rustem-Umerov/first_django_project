@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -41,6 +42,16 @@ class CustomUser(AbstractUser):
     class Meta:
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
+
+    @property
+    def avatar_url(self) -> str:
+        """
+        Возвращает avatar если файл есть, иначе возвращает дефолтный аватар.
+        """
+
+        if self.avatar:
+            return self.avatar.url
+        return settings.DEFAULT_AVATAR_URL
 
     def __str__(self) -> str:
         return self.username
