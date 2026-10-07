@@ -54,4 +54,4 @@ class CustomUser(AbstractUser):
         return settings.DEFAULT_AVATAR_URL
 
     def __str__(self) -> str:
-        return self.username
+        return f"{self.username} ({self.email})"
