@@ -1,3 +1,10 @@
-# from django.shortcuts import render
+from django.contrib.auth.views import LoginView
 
-# Create your views here.
+from .forms import UserLoginForm
+
+
+class CustomLoginView(LoginView):
+    """Контролер для пользовательского входа."""
+
+    template_name = "users/login.html"
+    form_class = UserLoginForm
