@@ -32,7 +32,7 @@ urlpatterns: List[Union[URLPattern, URLResolver]] = [
     path("catalog/", include("catalog.dashboard_urls", namespace="catalog_dashboard")),
     path("blog/", include("blog.public_urls", namespace="blog_public")),
     path("blog/my/", include("blog.account_urls", namespace="blog_account")),
-    path("accounts/", include("django.contrib.auth.urls")),
+    path("users/", include("users.urls", namespace="users")),
     path("logout/", logout_and_stay, name="logout"),
 ]
 
