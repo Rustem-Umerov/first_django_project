@@ -29,8 +29,15 @@
                         </div>
                     </div>
 
-                    <!-- Кнопка выхода -->
-                    <a href="{% url 'logout' %}" class="btn btn-outline-danger">Выйти</a>
+                    <!-- Кнопка Выйти -->
+                    <form action="{% url 'users:logout' %}" method="post" class="d-inline">
+
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger">
+                            Выйти
+                        </button>
+                    </form>
+
                 </div>
             </div>
         {% else %}

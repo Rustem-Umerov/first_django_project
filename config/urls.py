@@ -23,8 +23,6 @@ from django.contrib import admin
 from django.urls import URLPattern, URLResolver, include, path
 from django.views.generic import TemplateView
 
-from account.views import logout_and_stay
-
 urlpatterns: List[Union[URLPattern, URLResolver]] = [
     path("", TemplateView.as_view(template_name="home.html"), name="home"),
     path("admin/", admin.site.urls),
@@ -33,7 +31,6 @@ urlpatterns: List[Union[URLPattern, URLResolver]] = [
     path("blog/", include("blog.public_urls", namespace="blog_public")),
     path("blog/my/", include("blog.account_urls", namespace="blog_account")),
     path("users/", include("users.urls", namespace="users")),
-    path("logout/", logout_and_stay, name="logout"),
 ]
 
 if settings.DEBUG:
