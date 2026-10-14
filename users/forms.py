@@ -1,5 +1,9 @@
+from typing import Any
+
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+
+from .models import CustomUser
 
 
 class UserLoginForm(AuthenticationForm):
@@ -12,3 +16,25 @@ class UserLoginForm(AuthenticationForm):
         label="Электронная почта",
         widget=forms.EmailInput(attrs={"placeholder": "E-mail", "autofocus": True}),
     )
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+        # Проходим циклом по всем полям и добавляем им класс Bootstrap
+        for field_name, field_object in self.fields.items():
+            field_object.widget.attrs.update({"class": "form-control"})
+
+
+class UserRegisterForm(UserCreationForm[CustomUser]):
+    """Форма регистрации нового пользователя."""
+
+    class Meta:
+        model = CustomUser
+        fields = ("username", "email")
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+        # Проходим циклом по всем полям и добавляем им класс Bootstrap
+        for field_name, field_object in self.fields.items():
+            field_object.widget.attrs.update({"class": "form-control"})
