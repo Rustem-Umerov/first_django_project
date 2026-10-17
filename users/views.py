@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from django.contrib import messages
@@ -8,7 +10,6 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
 from .forms import UserLoginForm, UserRegisterForm
-from .models import CustomUser
 
 
 class CustomLoginView(LoginView):
@@ -42,7 +43,7 @@ class CustomLogoutView(LogoutView):
         return self.request.META.get("HTTP_REFERER") or "/"
 
 
-class UserRegisterView(CreateView[CustomUser, UserRegisterForm]):
+class UserRegisterView(CreateView):  # type: ignore[type-arg]
     """Контролер для создания пользователя."""
 
     form_class = UserRegisterForm
