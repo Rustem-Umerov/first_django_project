@@ -1,10 +1,14 @@
 from typing import Any
 
 from django.contrib import messages
+from django.contrib.auth import login
 from django.contrib.auth.views import LoginView, LogoutView
 from django.http import HttpRequest, HttpResponse
+from django.urls import reverse_lazy
+from django.views.generic import CreateView
 
-from .forms import UserLoginForm
+from .forms import UserLoginForm, UserRegisterForm
+from .models import CustomUser
 
 
 class CustomLoginView(LoginView):
@@ -36,3 +40,24 @@ class CustomLogoutView(LogoutView):
             return next_url
 
         return self.request.META.get("HTTP_REFERER") or "/"
+
+
+class UserRegisterView(CreateView[CustomUser, UserRegisterForm]):
+    """Контролер для создания пользователя."""
+
+    form_class = UserRegisterForm
+    template_name = "users/register.html"
+    success_url = reverse_lazy("home")
+
+    def form_valid(self, form: UserRegisterForm) -> HttpResponse:
+        """Автоматически авторизует пользователя после успешной регистрации."""
+
+        # Сначала сохраняем пользователя в базу
+        # и передаем в response объект HttpResponseRedirect на success_url (здесь же сработает сигнал отправки почты)
+        response = super().form_valid(form)
+
+        # Авторизуем пользователя в текущей сессии
+        login(self.request, self.object)
+
+        # Возвращаем объект редиректа на success_url
+        return response
