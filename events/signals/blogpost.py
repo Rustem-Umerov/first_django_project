@@ -24,4 +24,9 @@ def blogpost_saved(sender: Any, instance: BlogPost, **kwargs: Any) -> None:
         if event_created:
             # Если объект Event создан, создается обработчик события EventHandler
             handler = EventHandler(event=event_created)
-            handler.handle()
+
+            try:
+                handler.handle()
+            except Exception as e:
+                print("\n[SIGNAL ERROR] Ошибка в сигнале 'blogpost_saved'")
+                print(f"Детали ошибки:\n{e}\n")

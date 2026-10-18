@@ -127,6 +127,9 @@ class EventHandler:
         :return: Результат отправки
         """
 
+        # Это переменная в которую будет сохранена ошибка, если вызов self.send() упадет с ошибкой.
+        last_exception = None
+
         # 1. Собирает контекст
         self.prepare()
 
@@ -136,6 +139,7 @@ class EventHandler:
                 sent_count = self.send()
             except Exception as e:
                 print(f"Попытка {attempt + 1} — ошибка сервиса: {e}")
+                last_exception = e
                 continue
 
             if sent_count > 0:
@@ -145,4 +149,9 @@ class EventHandler:
                 # 4. Возврат результата отправки
                 return sent_count
 
-        raise Exception(f"Письмо не отправлено после {self.max_attempts} попыток")
+        raise Exception(
+            f"Письмо не отправлено после {self.max_attempts} попыток\n"
+            f"[EMAIL ERROR] Не удалось отправить письмо!\n"
+            f"Пользователь: ID: {self.context.get('user_id')}, Email: {self.context.get('user_email')}\n"
+            f"Причина сбоя: {last_exception}\n"
+        )

@@ -19,4 +19,9 @@ def user_registered_signal(
         event_created = handle_user_registered_event(instance)
         if event_created:
             handler = EventHandler(event=event_created)
-            handler.handle()
+
+            try:
+                handler.handle()
+            except Exception as e:
+                print("\n[SIGNAL ERROR] Ошибка в сигнале 'user_registered_signal'")
+                print(f"Детали ошибки:\n{e}\n")
