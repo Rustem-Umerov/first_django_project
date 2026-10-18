@@ -38,3 +38,25 @@ class UserRegisterForm(UserCreationForm[CustomUser]):
         # Проходим циклом по всем полям и добавляем им класс Bootstrap
         for field_name, field_object in self.fields.items():
             field_object.widget.attrs.update({"class": "form-control"})
+
+
+class UserProfileUpdateForm(forms.ModelForm[CustomUser]):
+    """Форма для редактирования профиля пользователя."""
+
+    class Meta:
+        model = CustomUser
+        fields = (
+            "avatar",
+            "username",
+            "first_name",
+            "last_name",
+            "phone_number",
+            "country",
+        )
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+        # Проходим циклом по всем полям и добавляем им класс Bootstrap
+        for field_name, field_object in self.fields.items():
+            field_object.widget.attrs.update({"class": "form-control"})
