@@ -4,12 +4,13 @@ from typing import Any
 
 from django.contrib import messages
 from django.contrib.auth import login
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.http import HttpRequest, HttpResponse
 from django.urls import reverse_lazy
-from django.views.generic import CreateView
+from django.views.generic import CreateView, UpdateView
 
-from .forms import UserLoginForm, UserRegisterForm
+from .forms import UserLoginForm, UserProfileUpdateForm, UserRegisterForm
 
 
 class CustomLoginView(LoginView):
@@ -62,3 +63,20 @@ class UserRegisterView(CreateView):  # type: ignore[type-arg]
 
         # Возвращаем объект редиректа на success_url
         return response
+
+
+class UserProfileUpdateView(LoginRequiredMixin, UpdateView):  # type: ignore[type-arg]
+    """Контроллер для просмотра и обновления профиля пользователя."""
+
+    form_class = UserProfileUpdateForm
+    template_name = "users/profile.html"
+
+    def get_object(self, queryset: Any = None) -> Any:
+        """Возвращает текущего авторизованного пользователя."""
+
+        return self.request.user
+
+    def get_success_url(self) -> str:
+        """Возвращает URL текущей страницы для перезагрузки после сохранения."""
+
+        return self.request.path
