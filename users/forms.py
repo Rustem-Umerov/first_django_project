@@ -40,7 +40,7 @@ class UserRegisterForm(UserCreationForm[CustomUser]):
             field_object.widget.attrs.update({"class": "form-control"})
 
 
-class UserProfileUpdateForm(forms.ModelForm[CustomUser]):
+class UserProfileUpdateForm(forms.ModelForm):  # type: ignore[type-arg]
     """Форма для редактирования профиля пользователя."""
 
     class Meta:
