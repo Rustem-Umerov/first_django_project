@@ -80,3 +80,14 @@ class UserProfileUpdateView(LoginRequiredMixin, UpdateView):  # type: ignore[typ
         """Возвращает URL текущей страницы для перезагрузки после сохранения."""
 
         return self.request.path
+
+    def form_valid(self, form: UserProfileUpdateForm) -> HttpResponse:
+        """Выводит сообщение об успешном обновлении данных профиля."""
+
+        # 1. Сначала сохраняем форму и получаем стандартный ответ
+        response = super().form_valid(form)
+
+        # 2. Добавляем успешное сообщение
+        messages.success(self.request, "Данные профиля успешно обновлены!")
+
+        return response

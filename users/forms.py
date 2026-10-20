@@ -35,6 +35,12 @@ class UserRegisterForm(UserCreationForm[CustomUser]):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
+        if "email" in self.fields:
+            self.fields["email"].widget.attrs.pop("autofocus", None)
+
+        if "username" in self.fields:
+            self.fields["username"].widget.attrs.update({"autofocus": True})
+
         # Проходим циклом по всем полям и добавляем им класс Bootstrap
         for field_name, field_object in self.fields.items():
             field_object.widget.attrs.update({"class": "form-control"})
