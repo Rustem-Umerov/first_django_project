@@ -152,6 +152,7 @@ class EventHandler:
         raise Exception(
             f"Письмо не отправлено после {self.max_attempts} попыток\n"
             f"[EMAIL ERROR] Не удалось отправить письмо!\n"
-            f"Пользователь: ID: {self.context.get('user_id')}, Email: {self.context.get('user_email')}\n"
+            f"Тип события: {self.context.get("event_type")}\n"
+            f"Пользователь: ID: {self.context.get('user_pk')}, Email: {self.context.get('user_email')}\n"
             f"Причина сбоя: {last_exception}\n"
         )

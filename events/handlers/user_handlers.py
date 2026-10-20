@@ -19,6 +19,7 @@ def function_that_collects_user_data(
     :return: Словарь с данными
     """
 
+    user_pk = content_object.pk
     username = content_object.username
     user_email = content_object.email
 
@@ -26,8 +27,9 @@ def function_that_collects_user_data(
     event_type = event.event_type
 
     return {
-        "username": username,
+        "user_pk": user_pk,
         "user_email": user_email,
+        "username": username,
         "time_event": time_event,
         "event_type": event_type,
     }

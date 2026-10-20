@@ -19,8 +19,9 @@ def function_that_collects_post_data(
     :return: Словарь с данными
     """
 
-    author_email = content_object.author.email
-    author_name = content_object.author.username
+    user_pk = content_object.author.pk
+    user_email = content_object.author.email
+    username = content_object.author.username
     title_post = content_object.title
     count_views = content_object.count_views
     post_id = content_object.pk
@@ -31,8 +32,9 @@ def function_that_collects_post_data(
     post_url = f"/blog/{post_id}/"
 
     return {
-        "author_email": author_email,
-        "author_name": author_name,
+        "user_pk": user_pk,
+        "user_email": user_email,
+        "username": username,
         "title_post": title_post,
         "count_views": count_views,
         "post_id": post_id,
