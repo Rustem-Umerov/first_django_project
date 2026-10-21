@@ -1,12 +1,13 @@
 from typing import cast
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import UpdateView, View
+
+from users.models import CustomUser
 
 from ..forms import BlogPostForm
 from ..models import BlogPost
@@ -22,7 +23,7 @@ class BlogPostUpdateView(LoginRequiredMixin, UpdateView):  # type: ignore[type-a
     def get_queryset(self) -> QuerySet[BlogPost]:
         """Возвращает queryset объектов определенного автора."""
 
-        user = cast(User, self.request.user)
+        user = cast(CustomUser, self.request.user)
         return BlogPost.objects.filter(author=user)
 
     def get_success_url(self) -> str:
@@ -39,7 +40,7 @@ class ChangeStatusView(LoginRequiredMixin, View):
     def get_queryset(self) -> QuerySet[BlogPost]:
         """Разрешаем работать только со своими постами."""
 
-        user = cast(User, self.request.user)
+        user = cast(CustomUser, self.request.user)
         return BlogPost.objects.filter(author=user)
 
     def post(self, request: HttpRequest, pk: int, action: str) -> HttpResponse:

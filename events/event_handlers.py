@@ -6,6 +6,10 @@ from .handlers.post_handlers import (
     function_that_collects_post_data,
     wrapper_post_reached_100_views,
 )
+from .handlers.user_handlers import (
+    function_that_collects_user_data,
+    wrapper_user_registered,
+)
 from .models import Event
 
 
@@ -17,13 +21,15 @@ class EventHandler:
     """
 
     # Словарь {тип события: функция для сборки контекста}
-    EVENT_TYPE_DICT_AND_CONTEXT_COLLECTOR = {
-        "post_reached_100_views": function_that_collects_post_data
+    EVENT_TYPE_DICT_AND_CONTEXT_COLLECTOR: dict[str, Callable[..., Any]] = {
+        "post_reached_100_views": function_that_collects_post_data,
+        "user_registered": function_that_collects_user_data,
     }
 
     # Словарь {тип события: функция-обертка для отправки письма}
-    EVENT_TYPE_DICT_AND_WRAPPER_FOR_SENDING = {
-        "post_reached_100_views": wrapper_post_reached_100_views
+    EVENT_TYPE_DICT_AND_WRAPPER_FOR_SENDING: dict[str, Callable[..., Any]] = {
+        "post_reached_100_views": wrapper_post_reached_100_views,
+        "user_registered": wrapper_user_registered,
     }
 
     # Название класса (например, для логов)
@@ -121,6 +127,9 @@ class EventHandler:
         :return: Результат отправки
         """
 
+        # Это переменная в которую будет сохранена ошибка, если вызов self.send() упадет с ошибкой.
+        last_exception = None
+
         # 1. Собирает контекст
         self.prepare()
 
@@ -130,6 +139,7 @@ class EventHandler:
                 sent_count = self.send()
             except Exception as e:
                 print(f"Попытка {attempt + 1} — ошибка сервиса: {e}")
+                last_exception = e
                 continue
 
             if sent_count > 0:
@@ -139,4 +149,10 @@ class EventHandler:
                 # 4. Возврат результата отправки
                 return sent_count
 
-        raise Exception(f"Письмо не отправлено после {self.max_attempts} попыток")
+        raise Exception(
+            f"Письмо не отправлено после {self.max_attempts} попыток\n"
+            f"[EMAIL ERROR] Не удалось отправить письмо!\n"
+            f"Тип события: {self.context.get("event_type")}\n"
+            f"Пользователь: ID: {self.context.get('user_pk')}, Email: {self.context.get('user_email')}\n"
+            f"Причина сбоя: {last_exception}\n"
+        )

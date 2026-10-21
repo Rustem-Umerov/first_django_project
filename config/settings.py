@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "catalog.apps.CatalogConfig",
     "blog.apps.BlogConfig",
     "events.apps.EventsConfig",
+    "users.apps.UsersConfig",
 ]
 
 MIDDLEWARE = [
@@ -133,7 +134,9 @@ STATICFILES_DIRS = [BASE_DIR / "static/"]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "home"
+
+LOGIN_URL = "users:login"
 
 DEFAULT_AVATAR_URL = "/static/img/default_avatar.png"
 
@@ -147,3 +150,8 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL") == "True"
 
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
+
+
+# Переопределение модели пользователя
+
+AUTH_USER_MODEL = "users.CustomUser"

@@ -8,6 +8,7 @@ class EventType(Enum):
     """
 
     POST_REACHED_100_VIEWS = "post_reached_100_views"  # Пост достиг 100 просмотров.
+    USER_REGISTERED = "user_registered"  # Пользователь зарегистрировался
 
     @classmethod
     def choices(cls) -> list[tuple[str, str]]:

@@ -1,7 +1,6 @@
 from typing import cast
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
 from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.shortcuts import redirect
@@ -13,6 +12,8 @@ from django.views.generic import (
     ListView,
     TemplateView,
 )
+
+from users.models import CustomUser
 
 from ..forms import BlogPostForm
 from ..models import BlogPost
@@ -35,7 +36,7 @@ class BlogPostMyPublishedListView(LoginRequiredMixin, ListView):  # type: ignore
     def get_queryset(self) -> QuerySet[BlogPost]:
         """Переопредели get_queryset, чтобы показывать только личные опубликованные посты."""
 
-        user = cast(User, self.request.user)
+        user = cast(CustomUser, self.request.user)
         return BlogPost.objects.filter(is_published=True, author=user)
 
 
@@ -50,7 +51,7 @@ class BlogPostDraftListView(LoginRequiredMixin, ListView):  # type: ignore[type-
     def get_queryset(self) -> QuerySet[BlogPost]:
         """Переопредели get_queryset, чтобы показывать только личные не опубликованные посты."""
 
-        user = cast(User, self.request.user)
+        user = cast(CustomUser, self.request.user)
         return BlogPost.objects.filter(is_published=False, author=user)
 
 
@@ -118,7 +119,7 @@ class BlogPostDeleteView(LoginRequiredMixin, DeleteView):  # type: ignore[type-a
     def get_queryset(self) -> QuerySet[BlogPost]:
         """Возвращает queryset объектов определенного автора."""
 
-        user = cast(User, self.request.user)
+        user = cast(CustomUser, self.request.user)
         return BlogPost.objects.filter(author=user)
 
     def get_success_url(self) -> str:
@@ -142,5 +143,5 @@ class BlogPostMyDetailView(LoginRequiredMixin, DetailView):  # type: ignore[type
     def get_queryset(self) -> QuerySet[BlogPost]:
         """Возвращает queryset объектов определенного автора."""
 
-        user = cast(User, self.request.user)
+        user = cast(CustomUser, self.request.user)
         return BlogPost.objects.filter(author=user)

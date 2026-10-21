@@ -1,6 +1,6 @@
 Ваш пост "{{ title_post }}" набрал {{ count_views }} просмотров.
 
-Автор: {{ author_name }}
+Автор: {{ username }}
 Ссылка на пост: {{ post_url }}
 
 ID поста: {{ post_id }}

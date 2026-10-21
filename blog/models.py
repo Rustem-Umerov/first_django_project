@@ -1,8 +1,5 @@
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.db import models
-
-# from .helpers.paths import blogpost_image_path, profile_avatar_path
 
 
 class BlogPost(models.Model):
@@ -52,38 +49,6 @@ class BlogPost(models.Model):
         return title
 
 
-class Profile(models.Model):
-    """Модель профиля пользователя."""
-
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-
-    def get_avatar_path(self, filename: str) -> str:
-        """
-        Формирует путь к месту хранения файла для модели Profile
-
-        :param filename: Название файл
-        :return: Путь к месту хранения файла
-        """
-
-        return f"avatars/{self.user.pk}/{filename}"
-
-    avatar = models.ImageField(upload_to=get_avatar_path, blank=True, null=True)
-    nickname = models.CharField(max_length=50, unique=True)
-
-    @property
-    def avatar_url(self) -> str:
-        """
-        Возвращает avatar если файл есть, иначе возвращает дефолтный аватар.
-        """
-
-        if self.avatar:
-            return self.avatar.url
-        return settings.DEFAULT_AVATAR_URL
-
-    def __str__(self) -> str:
-        return self.nickname or self.user.username
-
-
 class PostView(models.Model):
     """Показывает просмотры поста авторизованным пользователем и время просмотра."""
 
@@ -91,7 +56,7 @@ class PostView(models.Model):
         BlogPost, on_delete=models.CASCADE, related_name="views", verbose_name="Пост"
     )
     user = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="post_views",
         verbose_name="Пользователь",

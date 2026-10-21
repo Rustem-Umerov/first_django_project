@@ -40,9 +40,9 @@
 
                 <!-- Кнопка Выйти -->
                 {% if in_account %}
-                    <form action="{% url 'logout' %}?next={% url public_url_name %}" method="post" class="d-inline">
+                    <form action="{% url 'users:logout' %}?next={% url public_url_name %}" method="post" class="d-inline">
                 {% else %}
-                    <form action="{% url 'logout' %}" method="post" class="d-inline">
+                    <form action="{% url 'users:logout' %}" method="post" class="d-inline">
                 {% endif %}
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger">
@@ -54,7 +54,7 @@
 
                 <!-- Кнопка Войти -->
                 <a class="btn btn-success"
-                   href="{% url 'login' %}?next={{ request.path }}">
+                   href="{% url 'users:login' %}?next={{ request.path }}">
                     Войти
                 </a>
 

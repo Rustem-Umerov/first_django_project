@@ -1,11 +1,8 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.models import User
 from django.http import HttpRequest
 
 from .forms import BlogPostForm
-from .models import BlogPost, Profile
-from .typing import UserWithProfile
+from .models import BlogPost
 
 
 @admin.register(BlogPost)
@@ -50,46 +47,3 @@ class BlogPostAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
         else:
             # Если объект редактируется — обычное сохранение
             super().save_model(request, obj, form, change)
-
-
-# ==================================================================
-# ========== Интегрируем модель Profile в класс UserAdmin ==========
-
-
-class ProfileInline(admin.StackedInline):  # type: ignore[type-arg]
-    model = Profile
-    can_delete = False
-    extra = 0
-    verbose_name_plural = "Профиль пользователя"
-
-
-class CustomUserAdmin(UserAdmin):  # type: ignore[type-arg]
-    inlines = (ProfileInline,)
-
-    list_display = (
-        "username",
-        "email",
-        "first_name",
-        "last_name",
-        "is_staff",
-        "profile_nickname",
-    )
-    search_fields = (
-        "username",
-        "first_name",
-        "last_name",
-        "email",
-        "profile__nickname",
-    )
-    ordering = ("username", "profile__nickname")
-
-    @admin.display(description="Nickname")
-    def profile_nickname(self, obj: UserWithProfile) -> str:
-        return obj.profile.nickname
-
-
-admin.site.unregister(User)
-admin.site.register(User, CustomUserAdmin)
-
-# ==================================================================
-# ==================================================================
