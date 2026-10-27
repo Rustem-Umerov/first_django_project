@@ -53,6 +53,25 @@ class Product(models.Model):
         verbose_name="Категория",
     )
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
+
+    class Status(models.TextChoices):
+        """
+        Класс статусов для продукта.
+        """
+
+        DRAFT = "draft", "Черновик"
+        PENDING = "pending", "На модерации"
+        PUBLISHED = "published", "Опубликован"
+        ARCHIVED = "archived", "В архиве"
+
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.DRAFT,
+        db_index=True,
+        verbose_name="Статус публикации",
+    )
+
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
 
@@ -69,6 +88,7 @@ class Product(models.Model):
                 fields=["name", "category"], name="unique_product_in_category"
             )
         ]
+        permissions = [("can_unpublish_product", "Can unpublish product")]
 
     def __str__(self) -> str:
         return f"{self.name} — {self.price} ₽"
