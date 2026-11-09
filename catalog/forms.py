@@ -1,6 +1,7 @@
 from decimal import Decimal
 from typing import Optional
 
+import django_filters
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models.fields.files import ImageFieldFile
@@ -169,3 +170,13 @@ class ProductForm(forms.ModelForm):
             raise ValidationError("Цена не может быть отрицательной")
 
         return price
+
+
+class ProductFilter(django_filters.FilterSet):
+    """
+    Форма для валидации фильтров. Если пользователь хочет отфильтровать объекты Product.
+    """
+
+    class Meta:
+        model = Product
+        fields = ["status"]

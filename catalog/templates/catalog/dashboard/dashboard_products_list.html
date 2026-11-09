@@ -6,6 +6,34 @@
 
 {% block account_content %}
 
+
+<!-- Блок фильтрации -->
+<div class="row mb-4">
+    <div class="col-12">
+        <span class="me-2 align-middle">Фильтр по статусу:</span>
+        <div class="btn-group" role="group" aria-label="Фильтр статусов">
+            <!-- Кнопка "Все" (сбрасывает статус, но сохраняет другие параметры, если они появятся) -->
+            <a href="?{% if filter_params %}{{ filter_params }}{% endif %}"
+               class="btn btn-outline-primary {% if not filter.form.status.value %}active{% endif %}">
+                Все
+            </a>
+
+            <!-- Динамический вывод статусов напрямую из формы django-filter -->
+            {% for value, label in filter.form.fields.status.choices %}
+                {# Пропускаем пустой вариант (обычно '---------'), так как для него есть кнопка 'Все' #}
+                {% if value %}
+                    <a href="?{% if filter_params %}{{ filter_params }}&{% endif %}status={{ value }}"
+                       class="btn btn-outline-primary {% if filter.form.status.value == value|stringformat:'s' or filter.form.status.value == value %}active{% endif %}">
+                        {{ label }}
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+
+<!-- Вывод продуктов определенной страницы -->
 <div class="row g-4 text-center">
     {% for product in page_obj %}
 
@@ -36,18 +64,14 @@
     {% endfor %}
 </div>
 
-
-
-
-
-
+<!-- Пагинация -->
 <nav aria-label="Pagination" class="mt-4">
     <ul class="pagination justify-content-center align-items-center">
 
         <!-- Левая кнопка -->
         {% if page_obj.has_previous %}
         <li class="page-item me-2">
-            <a class="page-link" href="?page={{page_obj.previous_page_number}}"> ← Предыдущая </a>
+            <a class="page-link" href="?{% if filter_params %}{{ filter_params }}&{% endif %}page={{page_obj.previous_page_number}}"> ← Предыдущая </a>
         </li>
         {% else %}
         <li class="page-item disabled me-2">
@@ -60,14 +84,14 @@
         {% if num == page_obj.number %}
         <li class="page-item active"><span class="page-link">{{ num }}</span></li>
         {% else %}
-        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+        <li class="page-item"><a class="page-link" href="?{% if filter_params %}{{ filter_params }}&{% endif %}page={{ num }}">{{ num }}</a></li>
         {% endif %}
         {% endfor %}
 
         <!-- Правая кнопка -->
         {% if page_obj.has_next %}
         <li class="page-item ms-2">
-            <a class="page-link" href="?page={{page_obj.next_page_number}}"> Следующая → </a>
+            <a class="page-link" href="?{% if filter_params %}{{ filter_params }}&{% endif %}page={{page_obj.next_page_number}}"> Следующая → </a>
         </li>
         {% else %}
         <li class="page-item disabled ms-2">
@@ -77,8 +101,5 @@
     </ul>
 
 </nav>
-
-
-
 
 {% endblock %}

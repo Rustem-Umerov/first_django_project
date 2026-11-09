@@ -12,7 +12,7 @@ from django.views.generic import (
     View,
 )
 
-from .forms import ProductForm
+from .forms import ProductFilter, ProductForm
 from .models import Contact, Product
 
 PER_PAGE = 12
@@ -152,21 +152,53 @@ class DashboardProductsListView(LoginRequiredMixin, ListView):
     context_object_name = "products"
     paginate_by = PER_PAGE
 
+    def get_filterset(self) -> ProductFilter:
+        """Возвращает объект ProductFilter."""
+
+        # Если у объекта(self) нет атрибута _filterset, то он будет создан.
+        if not hasattr(self, "_filterset"):
+            self._filterset = ProductFilter(
+                self.request.GET, queryset=super().get_queryset()
+            )
+
+        return self._filterset
+
+    def get_queryset(self):
+        """Возвращает список продуктов, опционально отфильтрованный по фильтрам."""
+
+        return self.get_filterset().qs
+
     def get_context_data(self, **kwargs) -> dict:
-        """Добавляет кастомный диапазон страниц (page_range) в контекст."""
+        """Добавляет кастомный диапазон страниц и текущий статус в контекст."""
 
         context = super().get_context_data(**kwargs)
 
         # Формирование диапазона страниц, для навигации
         current_page = context["page_obj"].number
-        total_page = context["paginator"].num_pages
+        total_pages = context["paginator"].num_pages
 
         start_page = max(current_page - 5, 1)
-        end_page = min(current_page + 5, total_page)
+        end_page = min(current_page + 5, total_pages)
 
         page_range = range(start_page, end_page + 1)
 
         context["page_range"] = page_range
+
+        # Передаем фильтр в шаблон
+        context["filter"] = self.get_filterset()
+
+        # Далее создается копия request.GET.
+        # Если есть ключ "page", то он удаляется. Если есть ключ "status", то он тоже удаляется.
+        # Удаление страницы нужно для правильной пагинации,
+        # потому что при переходе на новою страницу, передается новый номер страницы.
+        # Удаление статуса нужно, чтобы при изменении статуса, сбрасывался предыдущий.
+        # Потом словарь, переводится в строку-ссылку.
+        # Это необходимо чтобы в шаблонах не нужно было писать параметры по отдельности.
+        request_get = self.request.GET.copy()
+        request_get.pop("page", None)  # удаление ключа "page"
+        request_get.pop("status", None)  # удаление ключа "status"
+        context["filter_params"] = request_get.urlencode()
+
         return context
 
 
