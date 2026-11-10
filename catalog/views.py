@@ -27,6 +27,11 @@ class HomeListViews(ListView):
     context_object_name = "products"
     paginate_by = PER_PAGE
 
+    def get_queryset(self):
+        """Возвращает только опубликованные объекты Product (status=PUBLISHED)"""
+
+        return super().get_queryset().filter(status=Product.Status.PUBLISHED)
+
     def get_context_data(self, **kwargs) -> dict:
         """Добавляет кастомный диапазон страниц (page_range) в контекст."""
 
