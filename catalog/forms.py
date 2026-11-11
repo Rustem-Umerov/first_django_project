@@ -42,44 +42,18 @@ class ProductForm(forms.ModelForm):
             "price",
         ]
         widgets = {
-            "name": forms.TextInput(attrs={"id": "id_name", "class": "form-control"}),
+            "name": forms.TextInput(
+                attrs={"class": "form-control", "placeholder": "Введите имя"}
+            ),
             "description": forms.Textarea(
-                attrs={"id": "id_description", "class": "form-control"}
+                attrs={"class": "form-control", "placeholder": "Введите описание"}
             ),
-            "image": forms.ClearableFileInput(
-                attrs={"id": "id_image", "class": "form-control"}
-            ),
-            "category": forms.Select(
-                attrs={"id": "id_category", "class": "form-select"}
-            ),
+            "image": forms.ClearableFileInput(attrs={"class": "form-control"}),
+            "category": forms.Select(attrs={"class": "form-select"}),
             "price": forms.NumberInput(
-                attrs={"id": "id_price", "class": "form-control"}
+                attrs={"class": "form-control", "placeholder": "Укажите цену"}
             ),
         }
-
-    def __init__(self, *args, **kwargs) -> None:
-        """Добавляет Bootstrap‑классы к виджетам формы для единообразной стилизации полей."""
-
-        super(ProductForm, self).__init__(*args, **kwargs)
-        self.fields["name"].widget.attrs.update(
-            {"class": "form-control", "placeholder": "Введите имя"}
-        )
-        self.fields["description"].widget.attrs.update(
-            {"class": "form-control", "placeholder": "Введите описание"}
-        )
-        self.fields["image"].widget.attrs.update(
-            {
-                "class": "form-control",
-            }
-        )
-        self.fields["category"].widget.attrs.update(
-            {
-                "class": "form-select",
-            }
-        )
-        self.fields["price"].widget.attrs.update(
-            {"class": "form-control", "placeholder": "Укажите цену"}
-        )
 
     def clean_name(self) -> str:
         """Проверяет наличие запрещенных слов в поле 'name'"""
@@ -170,6 +144,24 @@ class ProductForm(forms.ModelForm):
             raise ValidationError("Цена не может быть отрицательной")
 
         return price
+
+
+class ProductAdminForm(ProductForm):
+    """
+    Форма для создания и редактирования продуктов для админки.
+    Наследуется от ProductForm и добавляет поле статуса.
+    """
+
+    class Meta(ProductForm.Meta):
+        # Берем список полей родителя и добавляем новое
+        fields = ProductForm.Meta.fields + [
+            "status",
+        ]
+
+        widgets = {
+            **ProductForm.Meta.widgets,
+            "status": forms.Select(attrs={"id": "id_status", "class": "form-select"}),
+        }
 
 
 class ProductFilter(django_filters.FilterSet):

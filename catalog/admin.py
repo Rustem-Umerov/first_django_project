@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.forms import ModelForm
 from django.http import HttpRequest
 
-from .forms import ProductForm
+from .forms import ProductAdminForm
 from .models import Category, Contact, Product
 
 
@@ -15,9 +15,9 @@ class CategoryAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
-    form = ProductForm
-    list_display = ("id", "name", "price", "category")
-    list_filter = ("category",)
+    form = ProductAdminForm
+    list_display = ("id", "name", "price", "category", "status")
+    list_filter = ("category", "status")
     search_fields = ("name", "description")
     list_display_links = ("name",)
 
