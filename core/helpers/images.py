@@ -3,9 +3,12 @@ from typing import Any, Optional, cast
 from django.db.models.fields.files import FieldFile
 
 
-def compare_old_and_new_file(instance: Any, field_name: str) -> Optional[FieldFile]:
+def get_old_and_new_file(
+    instance: Any, field_name: str
+) -> Optional[tuple[FieldFile, Optional[FieldFile]]]:
     """
-    Возвращает старый файл, если он существует и отличается от нового.
+    Если старый файл, то возвращает старый и новый файл.
+    При этом новый файл может отсутствовать. Это означает что нужно, просто, удалить файл из объекта.
     Иначе возвращает None.
 
     :param instance: Объект модели у которой есть поле image
@@ -22,10 +25,6 @@ def compare_old_and_new_file(instance: Any, field_name: str) -> Optional[FieldFi
     # Новый файл, который пользователь загрузил
     new_file = cast(Optional[FieldFile], getattr(instance, field_name, None))
 
-    # Проверяем, что новый файл есть
-    if not new_file or not new_file.name:
-        return None
-
     # Получаем старый объект модели из базы
     try:
         old_instance = model.objects.get(pk=instance.pk)
@@ -35,11 +34,18 @@ def compare_old_and_new_file(instance: Any, field_name: str) -> Optional[FieldFi
     # Старый файл из базы данных
     old_file = cast(Optional[FieldFile], getattr(old_instance, field_name, None))
 
-    # Проверяем, что старый файл есть
+    # Проверяем, что старый файл есть. Если нет, то возвращаем None, так удалять нечего.
     if not old_file or not old_file.name:
         return None
 
-    # Если старый файл существует и он отличается от нового - возвращаем старый файл
-    if old_file.name != new_file.name:
-        return old_file
+    # Если нового файла нет, то, просто, нужно оставить объект без файла.
+    # Возвращаем (старый файл, новый файл) чтобы можно было проверить есть ли новый файл, если нет,
+    # то нужно удалить и старый файл и папку.
+    if new_file is None or not new_file.name:
+        return old_file, None
+
+    # Проверка новый файл или нет через флаг _committed
+    # (_committed = False - файл не сохранен в storage, _committed = True - файл сохранен в storage)
+    if not new_file._committed:  # type: ignore[attr-defined]
+        return old_file, new_file
     return None
