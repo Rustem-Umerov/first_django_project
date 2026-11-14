@@ -43,6 +43,10 @@ def prepare_old_image_for_deletion(
 ) -> None:
     """Запоминаем старое изображение, которое нужно удалить после сохранения."""
 
+    # Если Django загружает фикстуры (loaddata), то сигнал должен быть отключён
+    if kwargs.get("raw"):
+        return
+
     # Если объект создаётся впервые — старого файла нет
     if instance._state.adding:
         return
@@ -69,6 +73,10 @@ def prepare_old_image_for_deletion(
 @receiver(post_save, sender=Product)
 def delete_old_image_after_save(sender: Any, instance: Product, **kwargs: Any) -> None:
     """Удаляем старое изображение после успешного сохранения Product."""
+
+    # Если Django загружает фикстуры (loaddata), то сигнал должен быть отключён
+    if kwargs.get("raw"):
+        return
 
     # Если атрибута _image_cleanup_data нет, то данных для удаления нет.
     cleanup_data = getattr(instance, "_image_cleanup_data", None)
