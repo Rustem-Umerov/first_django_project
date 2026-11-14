@@ -7,8 +7,6 @@ from django.core.exceptions import ValidationError
 from django.db.models.fields.files import ImageFieldFile
 from PIL import Image, UnidentifiedImageError
 
-from core.helpers.files import delete_file, delete_folder
-from core.helpers.paths import get_folder_path
 from core.validators import validate_bad_words
 
 from .models import Product
@@ -90,22 +88,8 @@ class ProductForm(forms.ModelForm):
 
         image = self.cleaned_data.get("image")
 
-        # Пользователь поставил галочку "Clear"
-        if image is False:
-            # Получаем путь к папке ДО удаления файла
-            folder_path = get_folder_path(self.instance.image)
-            if folder_path is None:
-                raise ValueError("Путь к папке определить не удалось.")
-
-            # Удаляем файл
-            delete_file(self.instance.image)
-
-            # Удаляем папку
-            delete_folder(folder_path, self.instance.pk)
-
-            return None
-
-        if image is None:
+        # Проверка: None - фото вообще не передали, False - пользователь нажал Clear.
+        if image is None or image is False:
             return image
 
         # Проверка размера файла (5 МБ)
