@@ -123,6 +123,9 @@ class DashboardProductCreateView(LoginRequiredMixin, CreateView):
         # Создаём объект без сохранения
         product: Product = form.save(commit=False)
 
+        # Назначаем автора
+        product.author = self.request.user
+
         # Забираем файл из cleaned_data
         image = form.cleaned_data.get("image")
 
