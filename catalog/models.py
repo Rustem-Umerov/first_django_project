@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 
@@ -27,6 +28,12 @@ class Product(models.Model):
     Хранит информацию о товаре, его категории, цене и датах создания/обновления.
     """
 
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="products",
+        verbose_name="Автор",
+    )
     name = models.CharField(max_length=150, verbose_name="Название продукта")
     description = models.TextField(verbose_name="Описание продукта")
 
