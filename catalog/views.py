@@ -1,4 +1,7 @@
+from typing import cast
+
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q, QuerySet
 from django.http import HttpRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
@@ -11,6 +14,8 @@ from django.views.generic import (
     UpdateView,
     View,
 )
+
+from users.models import CustomUser
 
 from .forms import ProductFilter, ProductForm
 from .models import Contact, Product
@@ -160,19 +165,30 @@ class DashboardProductsListView(LoginRequiredMixin, ListView):
     context_object_name = "products"
     paginate_by = PER_PAGE
 
+    def get_accessible_queryset(self) -> QuerySet[Product]:
+        """Возвращает базовый QuerySet с учетом прав доступа пользователя."""
+
+        qs = super().get_queryset()
+        user = self.request.user
+
+        if not user.has_perm("catalog.can_unpublish_product"):
+            return qs.filter(author=user)
+
+        return qs.exclude(Q(status=Product.Status.DRAFT) & ~Q(author=user))
+
     def get_filterset(self) -> ProductFilter:
         """Возвращает объект ProductFilter."""
 
         # Если у объекта(self) нет атрибута _filterset, то он будет создан.
         if not hasattr(self, "_filterset"):
             self._filterset = ProductFilter(
-                self.request.GET, queryset=super().get_queryset()
+                self.request.GET, queryset=self.get_accessible_queryset()
             )
 
         return self._filterset
 
     def get_queryset(self):
-        """Возвращает список продуктов, опционально отфильтрованный по фильтрам."""
+        """Возвращает финальный отфильтрованный список продуктов."""
 
         return self.get_filterset().qs
 
@@ -230,6 +246,12 @@ class DashboardProductUpdateView(LoginRequiredMixin, UpdateView):
     model = Product
     form_class = ProductForm
     template_name = "catalog/dashboard/dashboard_product_update.html"
+
+    def get_queryset(self) -> QuerySet[Product]:
+        """Возвращает queryset объектов определенного автора."""
+
+        user = cast(CustomUser, self.request.user)
+        return Product.objects.filter(author=user)
 
     def get_success_url(self):
         """Куда перенаправлять после успешного обновления."""
