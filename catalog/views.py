@@ -1,7 +1,7 @@
 from typing import cast
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q, QuerySet
+from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
@@ -19,6 +19,7 @@ from users.models import CustomUser
 
 from .forms import ProductFilter, ProductForm
 from .models import Contact, Product
+from .services import get_accessible_products
 
 PER_PAGE = 12
 
@@ -168,13 +169,11 @@ class DashboardProductsListView(LoginRequiredMixin, ListView):
     def get_accessible_queryset(self) -> QuerySet[Product]:
         """Возвращает базовый QuerySet с учетом прав доступа пользователя."""
 
-        qs = super().get_queryset()
-        user = self.request.user
-
-        if not user.has_perm("catalog.can_unpublish_product"):
-            return qs.filter(author=user)
-
-        return qs.exclude(Q(status=Product.Status.DRAFT) & ~Q(author=user))
+        return get_accessible_products(
+            user=self.request.user,
+            queryset=super().get_queryset(),
+            permission="catalog.can_view_all_products_except_foreign_drafts",
+        )
 
     def get_filterset(self) -> ProductFilter:
         """Возвращает объект ProductFilter."""
@@ -267,3 +266,12 @@ class DashboardProductDeleteView(LoginRequiredMixin, DeleteView):
     model = Product
     context_object_name = "product"
     success_url = reverse_lazy("catalog_dashboard:dashboard_products_list")
+
+    def get_queryset(self) -> QuerySet[Product]:
+        """Возвращает базовый QuerySet с учетом прав доступа пользователя."""
+
+        return get_accessible_products(
+            user=self.request.user,
+            queryset=super().get_queryset(),
+            permission="catalog.delete_product",
+        )
