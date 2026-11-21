@@ -95,7 +95,13 @@ class Product(models.Model):
                 fields=["name", "category"], name="unique_product_in_category"
             )
         ]
-        permissions = [("can_unpublish_product", "Can unpublish product")]
+        permissions = [
+            ("can_unpublish_product", "Can unpublish product"),
+            (
+                "can_view_all_products_except_foreign_drafts",
+                "Can view all products except foreign drafts",
+            ),
+        ]
 
     def __str__(self) -> str:
         return f"{self.name} — {self.price} ₽"
