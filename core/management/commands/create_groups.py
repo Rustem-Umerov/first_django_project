@@ -10,7 +10,11 @@ from django.db.models import Model
 
 GROUPS_MODELS_PERMISSIONS = {
     "Модератор продуктов": {
-        "catalog.Product": ("can_unpublish_product", "delete_product"),
+        "catalog.Product": (
+            "can_unpublish_product",
+            "delete_product",
+            "can_view_all_products_except_foreign_drafts",
+        ),
     },
 }
 
