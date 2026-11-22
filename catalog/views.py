@@ -1,9 +1,10 @@
 from typing import cast
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.http import HttpRequest
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView,
@@ -275,3 +276,27 @@ class DashboardProductDeleteView(LoginRequiredMixin, DeleteView):
             queryset=super().get_queryset(),
             permission="catalog.delete_product",
         )
+
+
+class UnpublishProductView(LoginRequiredMixin, View):
+    """Контроллер для отмены публикации."""
+
+    def post(self, request: HttpRequest, pk: int):
+        """Отменяет публикацию продукта."""
+
+        product = get_object_or_404(
+            Product.objects.filter(status=Product.Status.PUBLISHED),
+            pk=pk,
+        )
+
+        if product.author != request.user and not request.user.has_perm(
+            "catalog.can_unpublish_product"
+        ):
+            raise PermissionDenied(
+                "У вас нет прав для отмены публикации этого продукта."
+            )
+
+        product.status = Product.Status.DRAFT
+        product.save(update_fields=["status"])
+
+        return redirect("dashboard_product_detail", pk=pk)
