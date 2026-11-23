@@ -1,0 +1,115 @@
+<div class="mt-4 d-flex gap-3">
+
+    <!-- Редактировать -->
+    {% if product.author == request.user %}
+        {% if not product.is_pending %}
+            <a href="{% url 'catalog_dashboard:dashboard_product_edit' product.pk %}"
+               class="btn btn-warning btn-lg">
+                Редактировать
+            </a>
+        {% endif %}
+    {% endif %}
+
+
+    <!-- Отправить на модерацию -->
+    {% if product.author == request.user %}
+        {% if product.is_draft or product.is_archived %}
+            <a href="#"
+               class="btn btn-warning btn-lg">
+                Отправить на модерацию
+            </a>
+        {% endif %}
+    {% endif %}
+
+
+    <!-- Вернуть в черновик -->
+    {% if product.author == request.user %}
+        {% if product.is_pending or product.is_published %}
+            <a href="#"
+               class="btn btn-warning btn-lg">
+                Вернуть в черновик
+            </a>
+        {% endif %}
+    {% endif %}
+
+
+    <!-- Одобрить / Отклонить -->
+    {% if perms.catalog.can_unpublish_product %}
+        {% if product.is_pending %}
+
+            <a href="#"
+               class="btn btn-warning btn-lg">
+                Одобрить
+            </a>
+
+            <a href="#"
+               class="btn btn-warning btn-lg">
+                Отклонить
+            </a>
+
+        {% endif %}
+    {% endif %}
+
+
+    <!-- В архив -->
+    {% if product.author == request.user %}
+        {% if product.is_published %}
+            <a href="#"
+               class="btn btn-warning btn-lg">
+                В архив
+            </a>
+        {% endif %}
+    {% endif %}
+
+
+    <!-- Снять с публикации -->
+    {% if perms.catalog.can_unpublish_product %}
+        {% if product.is_published %}
+            <a href="#"
+               class="btn btn-warning btn-lg">
+                Снять с публикации
+            </a>
+        {% endif %}
+    {% endif %}
+
+
+    <!-- Удалить -->
+    <button type="button"
+            class="btn btn-danger btn-lg"
+            data-bs-toggle="modal"
+            data-bs-target="#confirmDeleteModal">
+        🗑 Удалить
+    </button>
+
+</div>
+
+
+<!-- МОДАЛКА: КНОПКА УДАЛИТЬ -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Удалить продукт?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        Вы уверены, что хотите удалить продукт:
+        <strong>{{ product.name|truncatechars:45 }}</strong>?
+        <br>
+        Это действие необратимо.
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+
+        <form method="post" action="{% url 'catalog_dashboard:dashboard_product_delete' product.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Да, удалить</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
