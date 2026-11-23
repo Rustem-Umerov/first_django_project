@@ -106,6 +106,22 @@ class Product(models.Model):
     def __str__(self) -> str:
         return f"{self.name} — {self.price} ₽"
 
+    @property
+    def is_draft(self) -> bool:
+        return self.status == self.Status.DRAFT
+
+    @property
+    def is_pending(self) -> bool:
+        return self.status == self.Status.PENDING
+
+    @property
+    def is_published(self) -> bool:
+        return self.status == self.Status.PUBLISHED
+
+    @property
+    def is_archived(self) -> bool:
+        return self.status == self.Status.ARCHIVED
+
 
 class Contact(models.Model):
     """
