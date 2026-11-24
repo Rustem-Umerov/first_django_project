@@ -251,7 +251,22 @@ class DashboardProductUpdateView(LoginRequiredMixin, UpdateView):
         """Возвращает queryset объектов определенного автора."""
 
         user = cast(CustomUser, self.request.user)
-        return Product.objects.filter(author=user)
+        return Product.objects.filter(
+            author=user,
+        ).exclude(
+            status=Product.Status.PENDING,
+        )
+
+    def form_valid(self, form):
+        """Если отредактирован опубликованный продукт, то переносим его в Черновик."""
+
+        response = super().form_valid(form)
+
+        if self.object.is_published:
+            self.object.status = Product.Status.DRAFT
+            self.object.save(update_fields=["status"])
+
+        return response
 
     def get_success_url(self):
         """Куда перенаправлять после успешного обновления."""
