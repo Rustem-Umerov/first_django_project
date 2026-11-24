@@ -262,7 +262,7 @@ class DashboardProductUpdateView(LoginRequiredMixin, UpdateView):
 
         response = super().form_valid(form)
 
-        if self.object.is_published:
+        if self.object.is_published and form.has_changed():
             self.object.status = Product.Status.DRAFT
             self.object.save(update_fields=["status"])
 
