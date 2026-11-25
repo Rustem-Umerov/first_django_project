@@ -101,6 +101,7 @@ class Product(models.Model):
                 "can_view_all_products_except_foreign_drafts",
                 "Can view all products except foreign drafts",
             ),
+            ("can_publish_product", "Can publish product"),
         ]
 
     def __str__(self) -> str:
