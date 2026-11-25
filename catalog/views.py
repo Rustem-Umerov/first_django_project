@@ -1,6 +1,6 @@
 from typing import cast
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404, redirect, render
@@ -336,6 +336,26 @@ class SubmitProductForModerationView(LoginRequiredMixin, View):
         product = get_object_or_404(queryset, pk=pk)
 
         product.status = Product.Status.PENDING
+        product.save(update_fields=["status"])
+
+        return redirect("dashboard_product_detail", pk=pk)
+
+
+class PublishProductView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    """Контроллер для опубликования продукта."""
+
+    permission_required = "catalog.can_publish_product"
+
+    def post(self, request: HttpRequest, pk: int):
+        """Переводит продукт в опубликованные."""
+
+        queryset = Product.objects.filter(
+            status=Product.Status.PENDING,
+        )
+
+        product = get_object_or_404(queryset, pk=pk)
+
+        product.status = Product.Status.PUBLISHED
         product.save(update_fields=["status"])
 
         return redirect("dashboard_product_detail", pk=pk)

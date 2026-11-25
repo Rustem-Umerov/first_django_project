@@ -7,6 +7,7 @@ from .views import (
     DashboardProductsListView,
     DashboardProductUpdateView,
     DashboardView,
+    PublishProductView,
     ReturnProductToDraftView,
     SubmitProductForModerationView,
 )
@@ -49,5 +50,10 @@ urlpatterns = [
         "products/<int:pk>/for-moderation/",
         SubmitProductForModerationView.as_view(),
         name="submit_product_for_moderation",
+    ),
+    path(
+        "products/<int:pk>/publish-product/",
+        PublishProductView.as_view(),
+        name="publish_product",
     ),
 ]
