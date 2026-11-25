@@ -8,6 +8,7 @@ from .views import (
     DashboardProductUpdateView,
     DashboardView,
     ReturnProductToDraftView,
+    SubmitProductForModerationView,
 )
 
 app_name = "catalog_dashboard"
@@ -43,5 +44,10 @@ urlpatterns = [
         "products/<int:pk>/return-to-draft/",
         ReturnProductToDraftView.as_view(),
         name="return_product_to_draft",
+    ),
+    path(
+        "products/<int:pk>/for-moderation/",
+        SubmitProductForModerationView.as_view(),
+        name="submit_product_for_moderation",
     ),
 ]

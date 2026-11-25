@@ -14,7 +14,7 @@
     <!-- Отправить на модерацию -->
     {% if product.author == request.user %}
         {% if product.is_draft or product.is_archived %}
-            <form method="post" action="{% url 'catalog_dashboard:' product.pk %}">
+            <form method="post" action="{% url 'catalog_dashboard:submit_product_for_moderation' product.pk %}">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-warning btn-lg">
                     Отправить на модерацию

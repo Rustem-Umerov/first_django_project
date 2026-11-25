@@ -317,3 +317,25 @@ class ReturnProductToDraftView(LoginRequiredMixin, View):
         product.save(update_fields=["status"])
 
         return redirect("dashboard_product_detail", pk=pk)
+
+
+class SubmitProductForModerationView(LoginRequiredMixin, View):
+    """Контроллер для отправки продукта автора на модерацию."""
+
+    def post(self, request: HttpRequest, pk: int):
+        """Отправляет продукт на модерацию."""
+
+        queryset = Product.objects.filter(
+            author=request.user,
+            status__in=[
+                Product.Status.DRAFT,
+                Product.Status.ARCHIVED,
+            ],
+        )
+
+        product = get_object_or_404(queryset, pk=pk)
+
+        product.status = Product.Status.PENDING
+        product.save(update_fields=["status"])
+
+        return redirect("dashboard_product_detail", pk=pk)
