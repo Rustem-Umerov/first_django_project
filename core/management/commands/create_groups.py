@@ -14,6 +14,7 @@ GROUPS_MODELS_PERMISSIONS = {
             "can_unpublish_product",
             "delete_product",
             "can_view_all_products_except_foreign_drafts",
+            "can_publish_product",
         ),
     },
 }
