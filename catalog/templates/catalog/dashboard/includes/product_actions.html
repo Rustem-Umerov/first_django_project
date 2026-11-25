@@ -62,7 +62,7 @@
     <!-- В архив -->
     {% if product.author == request.user %}
         {% if product.is_published %}
-            <form method="post" action="{% url 'catalog_dashboard:' product.pk %}">
+            <form method="post" action="{% url 'catalog_dashboard:to_archive' product.pk %}">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-warning btn-lg">
                     В архив

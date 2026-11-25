@@ -359,3 +359,22 @@ class PublishProductView(LoginRequiredMixin, PermissionRequiredMixin, View):
         product.save(update_fields=["status"])
 
         return redirect("dashboard_product_detail", pk=pk)
+
+
+class SubmitProductToArchiveView(LoginRequiredMixin, View):
+    """Контроллер для отправки продукта автора в архив."""
+
+    def post(self, request: HttpRequest, pk: int):
+        """Переводит продукт в архив."""
+
+        queryset = Product.objects.filter(
+            author=request.user,
+            status=Product.Status.PUBLISHED,
+        )
+
+        product = get_object_or_404(queryset, pk=pk)
+
+        product.status = Product.Status.ARCHIVED
+        product.save(update_fields=["status"])
+
+        return redirect("dashboard_product_detail", pk=pk)

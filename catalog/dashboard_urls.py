@@ -10,6 +10,7 @@ from .views import (
     PublishProductView,
     ReturnProductToDraftView,
     SubmitProductForModerationView,
+    SubmitProductToArchiveView,
 )
 
 app_name = "catalog_dashboard"
@@ -55,5 +56,10 @@ urlpatterns = [
         "products/<int:pk>/publish-product/",
         PublishProductView.as_view(),
         name="publish_product",
+    ),
+    path(
+        "products/<int:pk>/to-archive/",
+        SubmitProductToArchiveView.as_view(),
+        name="to_archive",
     ),
 ]
