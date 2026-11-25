@@ -1,7 +1,6 @@
 from typing import cast
 
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404, redirect, render
@@ -293,23 +292,21 @@ class DashboardProductDeleteView(LoginRequiredMixin, DeleteView):
         )
 
 
-class UnpublishProductView(LoginRequiredMixin, View):
-    """Контроллер для отмены публикации."""
+class UnpublishProductView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    """Контроллер для модератора, для перевода продукта в черновик."""
+
+    permission_required = "catalog.can_unpublish_product"
 
     def post(self, request: HttpRequest, pk: int):
-        """Отменяет публикацию продукта."""
+        """Переводит проддукт в черновик."""
 
-        product = get_object_or_404(
-            Product.objects.filter(status=Product.Status.PUBLISHED),
-            pk=pk,
+        queryset = Product.objects.filter(
+            status__in=[
+                Product.Status.PUBLISHED,
+                Product.Status.PENDING,
+            ]
         )
-
-        if product.author != request.user and not request.user.has_perm(
-            "catalog.can_unpublish_product"
-        ):
-            raise PermissionDenied(
-                "У вас нет прав для отмены публикации этого продукта."
-            )
+        product = get_object_or_404(queryset, pk=pk)
 
         product.status = Product.Status.DRAFT
         product.save(update_fields=["status"])

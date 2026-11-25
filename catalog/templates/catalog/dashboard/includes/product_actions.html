@@ -14,10 +14,12 @@
     <!-- Отправить на модерацию -->
     {% if product.author == request.user %}
         {% if product.is_draft or product.is_archived %}
-            <a href="#"
-               class="btn btn-warning btn-lg">
-                Отправить на модерацию
-            </a>
+            <form method="post" action="{% url 'catalog_dashboard:' product.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning btn-lg">
+                    Отправить на модерацию
+                </button>
+            </form>
         {% endif %}
     {% endif %}
 
@@ -25,10 +27,12 @@
     <!-- Вернуть в черновик -->
     {% if product.author == request.user %}
         {% if product.is_pending or product.is_published %}
-            <a href="#"
-               class="btn btn-warning btn-lg">
-                Вернуть в черновик
-            </a>
+            <form method="post" action="{% url 'catalog_dashboard:' product.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning btn-lg">
+                    Вернуть в черновик
+                </button>
+            </form>
         {% endif %}
     {% endif %}
 
@@ -37,15 +41,19 @@
     {% if perms.catalog.can_unpublish_product %}
         {% if product.is_pending %}
 
-            <a href="#"
-               class="btn btn-warning btn-lg">
-                Одобрить
-            </a>
+            <form method="post" action="{% url 'catalog_dashboard:' product.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning btn-lg">
+                    Одобрить
+                </button>
+            </form>
 
-            <a href="#"
-               class="btn btn-warning btn-lg">
-                Отклонить
-            </a>
+            <form method="post" action="{% url 'catalog_dashboard:unpublish_product' product.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning btn-lg">
+                    Отклонить
+                </button>
+            </form>
 
         {% endif %}
     {% endif %}
@@ -54,10 +62,12 @@
     <!-- В архив -->
     {% if product.author == request.user %}
         {% if product.is_published %}
-            <a href="#"
-               class="btn btn-warning btn-lg">
-                В архив
-            </a>
+            <form method="post" action="{% url 'catalog_dashboard:' product.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning btn-lg">
+                    В архив
+                </button>
+            </form>
         {% endif %}
     {% endif %}
 
@@ -65,10 +75,12 @@
     <!-- Снять с публикации -->
     {% if perms.catalog.can_unpublish_product %}
         {% if product.is_published %}
-            <a href="#"
-               class="btn btn-warning btn-lg">
-                Снять с публикации
-            </a>
+            <form method="post" action="{% url 'catalog_dashboard:unpublish_product' product.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning btn-lg">
+                    Снять с публикации
+                </button>
+            </form>
         {% endif %}
     {% endif %}
 
