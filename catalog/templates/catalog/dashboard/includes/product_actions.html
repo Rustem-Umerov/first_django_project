@@ -27,7 +27,7 @@
     <!-- Вернуть в черновик -->
     {% if product.author == request.user %}
         {% if product.is_pending or product.is_published %}
-            <form method="post" action="{% url 'catalog_dashboard:' product.pk %}">
+            <form method="post" action="{% url 'catalog_dashboard:return_product_to_draft' product.pk %}">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-warning btn-lg">
                     Вернуть в черновик
@@ -48,7 +48,7 @@
                 </button>
             </form>
 
-            <form method="post" action="{% url 'catalog_dashboard:unpublish_product' product.pk %}">
+            <form method="post" action="{% url 'catalog_dashboard:return_product_to_draft' product.pk %}">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-warning btn-lg">
                     Отклонить
@@ -75,7 +75,7 @@
     <!-- Снять с публикации -->
     {% if perms.catalog.can_unpublish_product %}
         {% if product.is_published %}
-            <form method="post" action="{% url 'catalog_dashboard:unpublish_product' product.pk %}">
+            <form method="post" action="{% url 'catalog_dashboard:return_product_to_draft' product.pk %}">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-warning btn-lg">
                     Снять с публикации

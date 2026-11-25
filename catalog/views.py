@@ -1,6 +1,6 @@
 from typing import cast
 
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404, redirect, render
@@ -292,20 +292,25 @@ class DashboardProductDeleteView(LoginRequiredMixin, DeleteView):
         )
 
 
-class UnpublishProductView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    """Контроллер для модератора, для перевода продукта в черновик."""
-
-    permission_required = "catalog.can_unpublish_product"
+class ReturnProductToDraftView(LoginRequiredMixin, View):
+    """Контроллер для перевода продукта в черновик."""
 
     def post(self, request: HttpRequest, pk: int):
-        """Переводит проддукт в черновик."""
+        """Переводит продукт в черновик."""
 
+        # Сначала берем ВСЕ продукты в нужных статусах
         queryset = Product.objects.filter(
             status__in=[
                 Product.Status.PUBLISHED,
                 Product.Status.PENDING,
-            ]
+            ],
         )
+
+        # Если у пользователя нет прав модератора,
+        #  фильтруем по авторству - только свои собственные продукты
+        if not request.user.has_perm("catalog.can_unpublish_product"):
+            queryset = queryset.filter(author=request.user)
+
         product = get_object_or_404(queryset, pk=pk)
 
         product.status = Product.Status.DRAFT
