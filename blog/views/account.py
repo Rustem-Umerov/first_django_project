@@ -1,7 +1,7 @@
 from typing import cast
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
@@ -34,10 +34,18 @@ class BlogPostMyPublishedListView(LoginRequiredMixin, ListView):  # type: ignore
     paginate_by = 10
 
     def get_queryset(self) -> QuerySet[BlogPost]:
-        """Переопредели get_queryset, чтобы показывать только личные опубликованные посты."""
+        """Возвращает опубликованные посты, доступные пользователю."""
 
-        user = cast(CustomUser, self.request.user)
-        return BlogPost.objects.filter(is_published=True, author=user)
+        # Получаем все опубликованные посты.
+        queryset = BlogPost.objects.filter(is_published=True)
+
+        # Если нет права, то только свои посты.
+        if not self.request.user.has_perm("blog.view_blogpost"):
+            user = cast(CustomUser, self.request.user)
+            queryset = queryset.filter(author=user)
+
+        # Если право есть, то все опубликованные посты. В том числе это и для суперпользователя.
+        return queryset
 
 
 class BlogPostDraftListView(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
@@ -51,8 +59,15 @@ class BlogPostDraftListView(LoginRequiredMixin, ListView):  # type: ignore[type-
     def get_queryset(self) -> QuerySet[BlogPost]:
         """Переопредели get_queryset, чтобы показывать только личные не опубликованные посты."""
 
-        user = cast(CustomUser, self.request.user)
-        return BlogPost.objects.filter(is_published=False, author=user)
+        queryset = BlogPost.objects.filter(is_published=False)
+
+        # Если не суперпользователь, то фильтруем еще по авторству.
+        # Так как обычный пользователь и контент-менеджер не могут видеть чужие черновики.
+        if not self.request.user.is_superuser:
+            user = cast(CustomUser, self.request.user)
+            queryset = queryset.filter(author=user)
+
+        return queryset
 
 
 class BlogPostCreateView(LoginRequiredMixin, CreateView):  # type: ignore[type-arg]
@@ -117,10 +132,21 @@ class BlogPostDeleteView(LoginRequiredMixin, DeleteView):  # type: ignore[type-a
     # template_name нет, так как подтверждения удаления происходит в окне, а не на отдельной странице
 
     def get_queryset(self) -> QuerySet[BlogPost]:
-        """Возвращает queryset объектов определенного автора."""
+        """Возвращает посты, доступные пользователю для удаления."""
 
         user = cast(CustomUser, self.request.user)
-        return BlogPost.objects.filter(author=user)
+        queryset = super().get_queryset()
+
+        # Суперпользователь может удалять любые посты.
+        if user.is_superuser:
+            return queryset
+
+        # Контент-менеджер может удалять все опубликованные посты и собственные черновики.
+        if user.has_perm("blog.delete_blogpost"):
+            return queryset.exclude(Q(is_published=False) & ~Q(author=user))
+
+        # Обычный пользователь может удалять только свои посты.
+        return queryset.filter(author=user)
 
     def get_success_url(self) -> str:
         """Куда перенаправлять после успешного удаления."""
@@ -141,7 +167,18 @@ class BlogPostMyDetailView(LoginRequiredMixin, DetailView):  # type: ignore[type
     context_object_name = "post"
 
     def get_queryset(self) -> QuerySet[BlogPost]:
-        """Возвращает queryset объектов определенного автора."""
+        """Возвращает посты, доступные пользователю для просмотра."""
 
         user = cast(CustomUser, self.request.user)
-        return BlogPost.objects.filter(author=user)
+        queryset = super().get_queryset()
+
+        # Суперпользователь может просматривать любые посты.
+        if user.is_superuser:
+            return queryset
+
+        # Контент-менеджер может просматривать все опубликованные посты и собственные черновики.
+        if user.has_perm("blog.view_blogpost"):
+            return queryset.exclude(Q(is_published=False) & ~Q(author=user))
+
+        # Обычный пользователь может просматривать только свои посты.
+        return queryset.filter(author=user)
