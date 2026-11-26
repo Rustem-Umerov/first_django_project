@@ -8,7 +8,10 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.db.models import Model
 
-GROUPS_MODELS_PERMISSIONS = {
+GROUPS_MODELS_PERMISSIONS: dict[
+    str,
+    dict[str, tuple[str, ...] | str],
+] = {
     "Модератор продуктов": {
         "catalog.Product": (
             "can_unpublish_product",
@@ -19,7 +22,6 @@ GROUPS_MODELS_PERMISSIONS = {
     },
     "Контент-менеджер": {
         "blog.BlogPost": (
-            "add_blogpost",
             "view_blogpost",
             "change_blogpost",
             "delete_blogpost",
