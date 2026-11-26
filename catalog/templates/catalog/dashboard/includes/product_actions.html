@@ -86,12 +86,14 @@
 
 
     <!-- Удалить -->
-    <button type="button"
-            class="btn btn-danger btn-lg"
-            data-bs-toggle="modal"
-            data-bs-target="#confirmDeleteModal">
-        🗑 Удалить
-    </button>
+    {% if product.author == request.user or perms.catalog.delete_product and not product.is_draft %}
+        <button type="button"
+                class="btn btn-danger btn-lg"
+                data-bs-toggle="modal"
+                data-bs-target="#confirmDeleteModal">
+            🗑 Удалить
+        </button>
+    {% endif %}
 
 </div>
 
