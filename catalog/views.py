@@ -222,6 +222,11 @@ class DashboardProductsListView(LoginRequiredMixin, ListView):
         request_get.pop("status", None)  # удаление ключа "status"
         context["filter_params"] = request_get.urlencode()
 
+        # Данная проверка вернет True/False. Чтобы понять пользователь модератор или нет.
+        context["is_moderator"] = self.request.user.has_perm(
+            "catalog.can_view_all_products_except_foreign_drafts"
+        )
+
         return context
 
 

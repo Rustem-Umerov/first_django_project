@@ -6,6 +6,14 @@
 
 {% block account_content %}
 
+<!-- Выводи сообщение для модератора. Чтобы модератор знал, что он видит только свои черновики. -->
+{% if is_moderator and not request.user.is_superuser and request.GET.status == "draft" %}
+    <div class="alert alert-info mt-3">
+        В разделе «Черновики» вы видите только свои продукты.
+        Черновики других авторов вам недоступны.
+    </div>
+{% endif %}
+
 
 <!-- Блок фильтрации -->
 <div class="row mb-4">
