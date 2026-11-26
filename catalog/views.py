@@ -243,6 +243,15 @@ class DashboardProductDetailView(LoginRequiredMixin, DetailView):  # type: ignor
     template_name = "catalog/dashboard/dashboard_product_detail.html"
     context_object_name = "product"
 
+    def get_queryset(self):
+        """Возвращает продукты, доступные пользователю."""
+
+        return get_accessible_products(
+            user=self.request.user,
+            queryset=super().get_queryset(),
+            permission="catalog.can_view_all_products_except_foreign_drafts",
+        )
+
 
 class DashboardProductUpdateView(LoginRequiredMixin, UpdateView):
     """Обновление продукта"""
@@ -252,14 +261,18 @@ class DashboardProductUpdateView(LoginRequiredMixin, UpdateView):
     template_name = "catalog/dashboard/dashboard_product_update.html"
 
     def get_queryset(self) -> QuerySet[Product]:
-        """Возвращает queryset объектов определенного автора."""
+        """Возвращает продукты, доступные пользователю для редактирования."""
 
-        user = cast(CustomUser, self.request.user)
-        return Product.objects.filter(
-            author=user,
-        ).exclude(
+        queryset = Product.objects.exclude(
             status=Product.Status.PENDING,
         )
+
+        # Суперпользователь видит абсолютно все продукты, кроме PENDING.
+        if self.request.user.is_superuser:
+            return queryset
+
+        user = cast(CustomUser, self.request.user)
+        return queryset.filter(author=user)
 
     def form_valid(self, form):
         """Если отредактирован опубликованный продукт, то переносим его в Черновик."""
@@ -312,7 +325,7 @@ class ReturnProductToDraftView(LoginRequiredMixin, View):
         )
 
         # Если у пользователя нет прав модератора,
-        #  фильтруем по авторству - только свои собственные продукты
+        # фильтруем по авторству - только свои собственные продукты
         if not request.user.has_perm("catalog.can_unpublish_product"):
             queryset = queryset.filter(author=request.user)
 
@@ -331,12 +344,14 @@ class SubmitProductForModerationView(LoginRequiredMixin, View):
         """Отправляет продукт на модерацию."""
 
         queryset = Product.objects.filter(
-            author=request.user,
             status__in=[
                 Product.Status.DRAFT,
                 Product.Status.ARCHIVED,
             ],
         )
+
+        if not request.user.is_superuser:
+            queryset = queryset.filter(author=request.user)
 
         product = get_object_or_404(queryset, pk=pk)
 
@@ -373,9 +388,11 @@ class SubmitProductToArchiveView(LoginRequiredMixin, View):
         """Переводит продукт в архив."""
 
         queryset = Product.objects.filter(
-            author=request.user,
             status=Product.Status.PUBLISHED,
         )
+
+        if not request.user.is_superuser:
+            queryset = queryset.filter(author=request.user)
 
         product = get_object_or_404(queryset, pk=pk)
 
