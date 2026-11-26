@@ -25,7 +25,7 @@
 
         <table class="table">
             <tr>
-                <td><strong>Цена</strong></td>
+                <td style="width: 60%;"><strong>Цена</strong></td>
                 <td>{{ product.price }} ₽</td>
             </tr>
             <tr>
@@ -35,6 +35,10 @@
             <tr>
                 <td><strong>ID товара</strong></td>
                 <td>{{ product.pk }}</td>
+            </tr>
+            <tr>
+                <td><strong>Статус</strong></td>
+                <td>{{ product.get_status_display }}</td>
             </tr>
         </table>
 
