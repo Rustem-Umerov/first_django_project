@@ -17,6 +17,14 @@ GROUPS_MODELS_PERMISSIONS = {
             "can_publish_product",
         ),
     },
+    "Контент-менеджер": {
+        "blog.BlogPost": (
+            "add_blogpost",
+            "view_blogpost",
+            "change_blogpost",
+            "delete_blogpost",
+        )
+    },
 }
 
 
