@@ -316,7 +316,7 @@ class ReturnProductToDraftView(LoginRequiredMixin, View):
         product.status = Product.Status.DRAFT
         product.save(update_fields=["status"])
 
-        return redirect("dashboard_product_detail", pk=pk)
+        return redirect("catalog_dashboard:dashboard_product_detail", pk=pk)
 
 
 class SubmitProductForModerationView(LoginRequiredMixin, View):
@@ -338,7 +338,7 @@ class SubmitProductForModerationView(LoginRequiredMixin, View):
         product.status = Product.Status.PENDING
         product.save(update_fields=["status"])
 
-        return redirect("dashboard_product_detail", pk=pk)
+        return redirect("catalog_dashboard:dashboard_product_detail", pk=pk)
 
 
 class PublishProductView(LoginRequiredMixin, PermissionRequiredMixin, View):
@@ -358,7 +358,7 @@ class PublishProductView(LoginRequiredMixin, PermissionRequiredMixin, View):
         product.status = Product.Status.PUBLISHED
         product.save(update_fields=["status"])
 
-        return redirect("dashboard_product_detail", pk=pk)
+        return redirect("catalog_dashboard:dashboard_product_detail", pk=pk)
 
 
 class SubmitProductToArchiveView(LoginRequiredMixin, View):
@@ -377,4 +377,4 @@ class SubmitProductToArchiveView(LoginRequiredMixin, View):
         product.status = Product.Status.ARCHIVED
         product.save(update_fields=["status"])
 
-        return redirect("dashboard_product_detail", pk=pk)
+        return redirect("catalog_dashboard:dashboard_product_detail", pk=pk)
