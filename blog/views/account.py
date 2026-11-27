@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Any, cast
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import QuerySet
@@ -47,6 +47,14 @@ class BlogPostMyPublishedListView(LoginRequiredMixin, ListView):  # type: ignore
 
         # Если право есть, то все опубликованные посты. В том числе это и для суперпользователя.
         return queryset
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        """Добавляет проверку на контент-менеджера в контекст."""
+
+        context = super().get_context_data(**kwargs)
+        context["is_content_manager"] = self.request.user.has_perm("blog.view_blogpost")
+
+        return context
 
 
 class BlogPostDraftListView(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
