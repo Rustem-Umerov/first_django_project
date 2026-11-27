@@ -1,17 +1,17 @@
 <div class="list-group">
 
     <a href="{% url 'blog_account:my_published' %}"
-       class="list-group-item list-group-item-action">
+       class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'my_published' %}active{% endif %}">
         Мои опубликованные
     </a>
 
     <a href="{% url 'blog_account:my_drafts' %}"
-       class="list-group-item list-group-item-action">
+       class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'my_drafts' %}active{% endif %}">
         Мои черновики
     </a>
 
     <a href="{% url 'blog_account:my_post_create' %}"
-       class="list-group-item list-group-item-action">
+       class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'my_post_create' %}active{% endif %}">
         Добавить пост
     </a>
 
