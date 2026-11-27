@@ -1,7 +1,7 @@
 from typing import cast
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q, QuerySet
+from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
@@ -17,6 +17,7 @@ from users.models import CustomUser
 
 from ..forms import BlogPostForm
 from ..models import BlogPost
+from ..services import get_accessible_blog_posts
 
 
 class AccountDashboardView(LoginRequiredMixin, TemplateView):
@@ -137,16 +138,9 @@ class BlogPostDeleteView(LoginRequiredMixin, DeleteView):  # type: ignore[type-a
         user = cast(CustomUser, self.request.user)
         queryset = super().get_queryset()
 
-        # Суперпользователь может удалять любые посты.
-        if user.is_superuser:
-            return queryset
-
-        # Контент-менеджер может удалять все опубликованные посты и собственные черновики.
-        if user.has_perm("blog.delete_blogpost"):
-            return queryset.exclude(Q(is_published=False) & ~Q(author=user))
-
-        # Обычный пользователь может удалять только свои посты.
-        return queryset.filter(author=user)
+        return get_accessible_blog_posts(
+            user=user, queryset=queryset, permission="blog.delete_blogpost"
+        )
 
     def get_success_url(self) -> str:
         """Куда перенаправлять после успешного удаления."""
@@ -172,13 +166,6 @@ class BlogPostMyDetailView(LoginRequiredMixin, DetailView):  # type: ignore[type
         user = cast(CustomUser, self.request.user)
         queryset = super().get_queryset()
 
-        # Суперпользователь может просматривать любые посты.
-        if user.is_superuser:
-            return queryset
-
-        # Контент-менеджер может просматривать все опубликованные посты и собственные черновики.
-        if user.has_perm("blog.view_blogpost"):
-            return queryset.exclude(Q(is_published=False) & ~Q(author=user))
-
-        # Обычный пользователь может просматривать только свои посты.
-        return queryset.filter(author=user)
+        return get_accessible_blog_posts(
+            user=user, queryset=queryset, permission="blog.view_blogpost"
+        )
