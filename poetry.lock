@@ -180,6 +180,24 @@ argon2 = ["argon2-cffi (>=23.1.0)"]
 bcrypt = ["bcrypt (>=4.1.1)"]
 
 [[package]]
+name = "django-filter"
+version = "26.2"
+description = "Django-filter is a reusable Django application for allowing users to filter querysets dynamically."
+optional = false
+python-versions = ">=3.11"
+groups = ["main"]
+files = [
+    {file = "django_filter-26.2-py3-none-any.whl", hash = "sha256:df8f737841d6359df00b84dda9b5ab59067fe60292091f1bdae1e3e6281cedb0"},
+    {file = "django_filter-26.2.tar.gz", hash = "sha256:fd5cc83995fbe9f5f07fb5dcda16fde0f04de1ecf8ef82628b6c0ec921b751af"},
+]
+
+[package.dependencies]
+Django = ">=5.2"
+
+[package.extras]
+drf = ["djangorestframework"]
+
+[[package]]
 name = "django-migration-linter"
 version = "6.0.0"
 description = "Detect backward incompatible migrations for your django project"
@@ -1263,4 +1281,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.13"
-content-hash = "72126f7e831c756d7cae8073b0a7b4bb42d31c34328ed7dec5ad19c70fe30c9e"
+content-hash = "9900e49f2962faa24d6472145d4f9ac5f0d35dd8fc638e547a93fdc8d06ee5d7"

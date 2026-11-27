@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 
@@ -27,6 +28,12 @@ class Product(models.Model):
     Хранит информацию о товаре, его категории, цене и датах создания/обновления.
     """
 
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="products",
+        verbose_name="Автор",
+    )
     name = models.CharField(max_length=150, verbose_name="Название продукта")
     description = models.TextField(verbose_name="Описание продукта")
 
@@ -53,6 +60,25 @@ class Product(models.Model):
         verbose_name="Категория",
     )
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Цена")
+
+    class Status(models.TextChoices):
+        """
+        Класс статусов для продукта.
+        """
+
+        DRAFT = "draft", "Черновик"
+        PENDING = "pending", "На модерации"
+        PUBLISHED = "published", "Опубликован"
+        ARCHIVED = "archived", "В архиве"
+
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.DRAFT,
+        db_index=True,
+        verbose_name="Статус публикации",
+    )
+
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
 
@@ -69,9 +95,33 @@ class Product(models.Model):
                 fields=["name", "category"], name="unique_product_in_category"
             )
         ]
+        permissions = [
+            ("can_unpublish_product", "Can unpublish product"),
+            (
+                "can_view_all_products_except_foreign_drafts",
+                "Can view all products except foreign drafts",
+            ),
+            ("can_publish_product", "Can publish product"),
+        ]
 
     def __str__(self) -> str:
         return f"{self.name} — {self.price} ₽"
+
+    @property
+    def is_draft(self) -> bool:
+        return self.status == self.Status.DRAFT
+
+    @property
+    def is_pending(self) -> bool:
+        return self.status == self.Status.PENDING
+
+    @property
+    def is_published(self) -> bool:
+        return self.status == self.Status.PUBLISHED
+
+    @property
+    def is_archived(self) -> bool:
+        return self.status == self.Status.ARCHIVED
 
 
 class Contact(models.Model):

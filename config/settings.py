@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     "blog.apps.BlogConfig",
     "events.apps.EventsConfig",
     "users.apps.UsersConfig",
+    "core.apps.CoreConfig",
+    "django_filters",
 ]
 
 MIDDLEWARE = [

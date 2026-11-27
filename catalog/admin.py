@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.forms import ModelForm
 from django.http import HttpRequest
 
-from .forms import ProductForm
+from .forms import ProductAdminForm
 from .models import Category, Contact, Product
 
 
@@ -15,9 +15,9 @@ class CategoryAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
-    form = ProductForm
-    list_display = ("id", "name", "price", "category")
-    list_filter = ("category",)
+    form = ProductAdminForm
+    list_display = ("id", "author", "name", "price", "category", "status")
+    list_filter = ("author", "category", "status")
     search_fields = ("name", "description")
     list_display_links = ("name",)
 
@@ -40,6 +40,10 @@ class ProductAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
 
         # Если объект новый (создаётся впервые)
         if not obj.pk:
+
+            # Присваиваем автора.
+            obj.author = request.user
+
             # Забираем файл из формы
             image = form.cleaned_data.get("image")
 

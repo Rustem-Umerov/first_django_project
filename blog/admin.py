@@ -1,5 +1,9 @@
+from typing import cast
+
 from django.contrib import admin
 from django.http import HttpRequest
+
+from users.models import CustomUser
 
 from .forms import BlogPostForm
 from .models import BlogPost
@@ -32,6 +36,10 @@ class BlogPostAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
 
         # Если объект новый (создаётся впервые)
         if not obj.pk:
+
+            # Присваиваем автора.
+            obj.author = cast(CustomUser, request.user)
+
             # Забираем файл из формы
             image = form.cleaned_data.get("image")
 

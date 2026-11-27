@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Any, cast
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import QuerySet
@@ -17,6 +17,7 @@ from users.models import CustomUser
 
 from ..forms import BlogPostForm
 from ..models import BlogPost
+from ..services import get_accessible_blog_posts
 
 
 class AccountDashboardView(LoginRequiredMixin, TemplateView):
@@ -34,10 +35,26 @@ class BlogPostMyPublishedListView(LoginRequiredMixin, ListView):  # type: ignore
     paginate_by = 10
 
     def get_queryset(self) -> QuerySet[BlogPost]:
-        """Переопредели get_queryset, чтобы показывать только личные опубликованные посты."""
+        """Возвращает опубликованные посты, доступные пользователю."""
 
-        user = cast(CustomUser, self.request.user)
-        return BlogPost.objects.filter(is_published=True, author=user)
+        # Получаем все опубликованные посты.
+        queryset = BlogPost.objects.filter(is_published=True)
+
+        # Если нет права, то только свои посты.
+        if not self.request.user.has_perm("blog.view_blogpost"):
+            user = cast(CustomUser, self.request.user)
+            queryset = queryset.filter(author=user)
+
+        # Если право есть, то все опубликованные посты. В том числе это и для суперпользователя.
+        return queryset
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        """Добавляет проверку на контент-менеджера в контекст."""
+
+        context = super().get_context_data(**kwargs)
+        context["is_content_manager"] = self.request.user.has_perm("blog.view_blogpost")
+
+        return context
 
 
 class BlogPostDraftListView(LoginRequiredMixin, ListView):  # type: ignore[type-arg]
@@ -51,8 +68,15 @@ class BlogPostDraftListView(LoginRequiredMixin, ListView):  # type: ignore[type-
     def get_queryset(self) -> QuerySet[BlogPost]:
         """Переопредели get_queryset, чтобы показывать только личные не опубликованные посты."""
 
-        user = cast(CustomUser, self.request.user)
-        return BlogPost.objects.filter(is_published=False, author=user)
+        queryset = BlogPost.objects.filter(is_published=False)
+
+        # Если не суперпользователь, то фильтруем еще по авторству.
+        # Так как обычный пользователь и контент-менеджер не могут видеть чужие черновики.
+        if not self.request.user.is_superuser:
+            user = cast(CustomUser, self.request.user)
+            queryset = queryset.filter(author=user)
+
+        return queryset
 
 
 class BlogPostCreateView(LoginRequiredMixin, CreateView):  # type: ignore[type-arg]
@@ -117,10 +141,14 @@ class BlogPostDeleteView(LoginRequiredMixin, DeleteView):  # type: ignore[type-a
     # template_name нет, так как подтверждения удаления происходит в окне, а не на отдельной странице
 
     def get_queryset(self) -> QuerySet[BlogPost]:
-        """Возвращает queryset объектов определенного автора."""
+        """Возвращает посты, доступные пользователю для удаления."""
 
         user = cast(CustomUser, self.request.user)
-        return BlogPost.objects.filter(author=user)
+        queryset = super().get_queryset()
+
+        return get_accessible_blog_posts(
+            user=user, queryset=queryset, permission="blog.delete_blogpost"
+        )
 
     def get_success_url(self) -> str:
         """Куда перенаправлять после успешного удаления."""
@@ -141,7 +169,11 @@ class BlogPostMyDetailView(LoginRequiredMixin, DetailView):  # type: ignore[type
     context_object_name = "post"
 
     def get_queryset(self) -> QuerySet[BlogPost]:
-        """Возвращает queryset объектов определенного автора."""
+        """Возвращает посты, доступные пользователю для просмотра."""
 
         user = cast(CustomUser, self.request.user)
-        return BlogPost.objects.filter(author=user)
+        queryset = super().get_queryset()
+
+        return get_accessible_blog_posts(
+            user=user, queryset=queryset, permission="blog.view_blogpost"
+        )

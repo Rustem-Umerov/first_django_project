@@ -6,7 +6,8 @@
     <h1 class="mb-3 text-break">{{ post.title }}</h1>
 
     <p class="text-muted">
-        Опубликовано: {{ post.created_at|date:"d.m.Y H:i" }} &nbsp;|&nbsp; Количество просмотров {{ post.count_views }}
+        Опубликовано: {{ post.created_at|date:"d.m.Y H:i" }} &nbsp;|&nbsp; Количество просмотров {{ post.count_views }}<br>
+        Автор: {{ post.author.username }} &nbsp;|&nbsp; {{ post.author.email }}
     </p>
 
     {% if post.image %}
@@ -17,37 +18,43 @@
         {{ post.content|linebreaks }}
     </div>
 
-    <div class="d-flex gap-2">
+    <div class="d-flex flex-wrap gap-2">
 
         <!-- Кнопки Перенести в черновик/Опубликовать -->
-        {% if post.is_published %}
-                <button type="submit"
-                        class="btn btn-primary"
-                        data-bs-toggle="modal"
-                        data-bs-target="#confirmDraftModal">
-                Перенести в черновик
-                </button>
-        {% else %}
-                <button type="submit"
-                        class="btn btn-primary"
-                        data-bs-toggle="modal"
-                        data-bs-target="#confirmPublishModal">
-                Опубликовать
-                </button>
+        {% if post.author == request.user or request.user.is_superuser %}
+            {% if post.is_published %}
+                    <button type="button"
+                            class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirmDraftModal">
+                    Перенести в черновик
+                    </button>
+            {% else %}
+                    <button type="button"
+                            class="btn btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirmPublishModal">
+                    Опубликовать
+                    </button>
+            {% endif %}
         {% endif %}
 
         <!-- Кнопка Редактировать -->
-        <a href="{% url 'blog_account:my_post_edit' post.pk %}" class="btn btn-primary">
-            ✏️ Редактировать
-        </a>
+        {% if post.author == request.user or request.user.is_superuser or perms.blog.change_blogpost and post.is_published %}
+            <a href="{% url 'blog_account:my_post_edit' post.pk %}" class="btn btn-primary">
+                ✏️ Редактировать
+            </a>
+        {% endif %}
 
         <!-- Кнопка Удалить -->
-        <button type="button"
-                class="btn btn-danger"
-                data-bs-toggle="modal"
-                data-bs-target="#confirmDeleteModal">
-            🗑 Удалить
-        </button>
+        {% if post.author == request.user or request.user.is_superuser or perms.blog.delete_blogpost and post.is_published %}
+            <button type="button"
+                    class="btn btn-danger"
+                    data-bs-toggle="modal"
+                    data-bs-target="#confirmDeleteModal">
+                🗑 Удалить
+            </button>
+        {% endif %}
 
         <!-- Кнопка Назад -->
         {% if post.is_published %}

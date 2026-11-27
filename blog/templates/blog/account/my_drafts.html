@@ -6,16 +6,33 @@
 
 {% block account_content %}
 <div class="container-fluid">
-    <h2 class="mb-4">Мои черновики</h2>
+
+    {% if request.user.is_superuser %}
+        <h2 class="mb-4">
+            Вы вошли как суперпользователь.<br>
+            Вам доступны черновики всех авторов.
+        </h2>
+    {% else %}
+        <h2 class="mb-4">Мои черновики</h2>
+    {% endif %}
 
     {% for post in posts %}
         <div class="mb-3 p-3 border rounded">
             <h4>{{ post.title|truncatechars:55 }}</h4>
-            <p class="text-muted">Черновик</p>
+            <p class="text-muted">
+                Черновик<br>
+                Автор: {{ post.author.username }} &nbsp;|&nbsp; {{ post.author.email }}
+            </p>
             <a href="{% url 'blog_account:my_post_detail' post.pk %}" class="btn btn-sm btn-warning">Редактировать</a>
         </div>
     {% empty %}
-        <p class="text-muted">У вас нет черновиков.</p>
+
+        {% if request.user.is_superuser %}
+            <p class="text-muted">Черновиков пока нет.</p>
+        {% else %}
+            <p class="text-muted">У вас нет черновиков.</p>
+        {% endif %}
+
     {% endfor %}
 </div>
 {% endblock %}

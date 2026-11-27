@@ -7,6 +7,10 @@ from .views import (
     DashboardProductsListView,
     DashboardProductUpdateView,
     DashboardView,
+    PublishProductView,
+    ReturnProductToDraftView,
+    SubmitProductForModerationView,
+    SubmitProductToArchiveView,
 )
 
 app_name = "catalog_dashboard"
@@ -37,5 +41,25 @@ urlpatterns = [
         "products/<int:pk>/delete/",
         DashboardProductDeleteView.as_view(),
         name="dashboard_product_delete",
+    ),
+    path(
+        "products/<int:pk>/return-to-draft/",
+        ReturnProductToDraftView.as_view(),
+        name="return_product_to_draft",
+    ),
+    path(
+        "products/<int:pk>/for-moderation/",
+        SubmitProductForModerationView.as_view(),
+        name="submit_product_for_moderation",
+    ),
+    path(
+        "products/<int:pk>/publish-product/",
+        PublishProductView.as_view(),
+        name="publish_product",
+    ),
+    path(
+        "products/<int:pk>/to-archive/",
+        SubmitProductToArchiveView.as_view(),
+        name="to_archive",
     ),
 ]

@@ -1,6 +1,9 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+from typing import cast
+
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.db.models import QuerySet
 from django.http import HttpRequest
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView,
@@ -12,8 +15,11 @@ from django.views.generic import (
     View,
 )
 
-from .forms import ProductForm
+from users.models import CustomUser
+
+from .forms import ProductFilter, ProductForm
 from .models import Contact, Product
+from .services import get_accessible_products
 
 PER_PAGE = 12
 
@@ -26,6 +32,11 @@ class HomeListViews(ListView):
     template_name = "catalog/public/home.html"
     context_object_name = "products"
     paginate_by = PER_PAGE
+
+    def get_queryset(self):
+        """Возвращает только опубликованные объекты Product (status=PUBLISHED)"""
+
+        return super().get_queryset().filter(status=Product.Status.PUBLISHED)
 
     def get_context_data(self, **kwargs) -> dict:
         """Добавляет кастомный диапазон страниц (page_range) в контекст."""
@@ -118,6 +129,9 @@ class DashboardProductCreateView(LoginRequiredMixin, CreateView):
         # Создаём объект без сохранения
         product: Product = form.save(commit=False)
 
+        # Назначаем автора
+        product.author = self.request.user
+
         # Забираем файл из cleaned_data
         image = form.cleaned_data.get("image")
 
@@ -152,21 +166,67 @@ class DashboardProductsListView(LoginRequiredMixin, ListView):
     context_object_name = "products"
     paginate_by = PER_PAGE
 
+    def get_accessible_queryset(self) -> QuerySet[Product]:
+        """Возвращает базовый QuerySet с учетом прав доступа пользователя."""
+
+        return get_accessible_products(
+            user=self.request.user,
+            queryset=super().get_queryset(),
+            permission="catalog.can_view_all_products_except_foreign_drafts",
+        )
+
+    def get_filterset(self) -> ProductFilter:
+        """Возвращает объект ProductFilter."""
+
+        # Если у объекта(self) нет атрибута _filterset, то он будет создан.
+        if not hasattr(self, "_filterset"):
+            self._filterset = ProductFilter(
+                self.request.GET, queryset=self.get_accessible_queryset()
+            )
+
+        return self._filterset
+
+    def get_queryset(self):
+        """Возвращает финальный отфильтрованный список продуктов."""
+
+        return self.get_filterset().qs
+
     def get_context_data(self, **kwargs) -> dict:
-        """Добавляет кастомный диапазон страниц (page_range) в контекст."""
+        """Добавляет кастомный диапазон страниц и текущий статус в контекст."""
 
         context = super().get_context_data(**kwargs)
 
         # Формирование диапазона страниц, для навигации
         current_page = context["page_obj"].number
-        total_page = context["paginator"].num_pages
+        total_pages = context["paginator"].num_pages
 
         start_page = max(current_page - 5, 1)
-        end_page = min(current_page + 5, total_page)
+        end_page = min(current_page + 5, total_pages)
 
         page_range = range(start_page, end_page + 1)
 
         context["page_range"] = page_range
+
+        # Передаем фильтр в шаблон
+        context["filter"] = self.get_filterset()
+
+        # Далее создается копия request.GET.
+        # Если есть ключ "page", то он удаляется. Если есть ключ "status", то он тоже удаляется.
+        # Удаление страницы нужно для правильной пагинации,
+        # потому что при переходе на новою страницу, передается новый номер страницы.
+        # Удаление статуса нужно, чтобы при изменении статуса, сбрасывался предыдущий.
+        # Потом словарь, переводится в строку-ссылку.
+        # Это необходимо чтобы в шаблонах не нужно было писать параметры по отдельности.
+        request_get = self.request.GET.copy()
+        request_get.pop("page", None)  # удаление ключа "page"
+        request_get.pop("status", None)  # удаление ключа "status"
+        context["filter_params"] = request_get.urlencode()
+
+        # Данная проверка вернет True/False. Чтобы понять пользователь модератор или нет.
+        context["is_moderator"] = self.request.user.has_perm(
+            "catalog.can_view_all_products_except_foreign_drafts"
+        )
+
         return context
 
 
@@ -183,6 +243,15 @@ class DashboardProductDetailView(LoginRequiredMixin, DetailView):  # type: ignor
     template_name = "catalog/dashboard/dashboard_product_detail.html"
     context_object_name = "product"
 
+    def get_queryset(self):
+        """Возвращает продукты, доступные пользователю."""
+
+        return get_accessible_products(
+            user=self.request.user,
+            queryset=super().get_queryset(),
+            permission="catalog.can_view_all_products_except_foreign_drafts",
+        )
+
 
 class DashboardProductUpdateView(LoginRequiredMixin, UpdateView):
     """Обновление продукта"""
@@ -190,6 +259,31 @@ class DashboardProductUpdateView(LoginRequiredMixin, UpdateView):
     model = Product
     form_class = ProductForm
     template_name = "catalog/dashboard/dashboard_product_update.html"
+
+    def get_queryset(self) -> QuerySet[Product]:
+        """Возвращает продукты, доступные пользователю для редактирования."""
+
+        queryset = Product.objects.exclude(
+            status=Product.Status.PENDING,
+        )
+
+        # Суперпользователь видит абсолютно все продукты, кроме PENDING.
+        if self.request.user.is_superuser:
+            return queryset
+
+        user = cast(CustomUser, self.request.user)
+        return queryset.filter(author=user)
+
+    def form_valid(self, form):
+        """Если отредактирован опубликованный продукт, то переносим его в Черновик."""
+
+        response = super().form_valid(form)
+
+        if self.object.is_published and form.has_changed():
+            self.object.status = Product.Status.DRAFT
+            self.object.save(update_fields=["status"])
+
+        return response
 
     def get_success_url(self):
         """Куда перенаправлять после успешного обновления."""
@@ -205,3 +299,104 @@ class DashboardProductDeleteView(LoginRequiredMixin, DeleteView):
     model = Product
     context_object_name = "product"
     success_url = reverse_lazy("catalog_dashboard:dashboard_products_list")
+
+    def get_queryset(self) -> QuerySet[Product]:
+        """Возвращает базовый QuerySet с учетом прав доступа пользователя."""
+
+        return get_accessible_products(
+            user=self.request.user,
+            queryset=super().get_queryset(),
+            permission="catalog.delete_product",
+        )
+
+
+class ReturnProductToDraftView(LoginRequiredMixin, View):
+    """Контроллер для перевода продукта в черновик."""
+
+    def post(self, request: HttpRequest, pk: int):
+        """Переводит продукт в черновик."""
+
+        # Сначала берем ВСЕ продукты в нужных статусах
+        queryset = Product.objects.filter(
+            status__in=[
+                Product.Status.PUBLISHED,
+                Product.Status.PENDING,
+            ],
+        )
+
+        # Если у пользователя нет прав модератора,
+        # фильтруем по авторству - только свои собственные продукты
+        if not request.user.has_perm("catalog.can_unpublish_product"):
+            queryset = queryset.filter(author=request.user)
+
+        product = get_object_or_404(queryset, pk=pk)
+
+        product.status = Product.Status.DRAFT
+        product.save(update_fields=["status"])
+
+        return redirect("catalog_dashboard:dashboard_product_detail", pk=pk)
+
+
+class SubmitProductForModerationView(LoginRequiredMixin, View):
+    """Контроллер для отправки продукта автора на модерацию."""
+
+    def post(self, request: HttpRequest, pk: int):
+        """Отправляет продукт на модерацию."""
+
+        queryset = Product.objects.filter(
+            status__in=[
+                Product.Status.DRAFT,
+                Product.Status.ARCHIVED,
+            ],
+        )
+
+        if not request.user.is_superuser:
+            queryset = queryset.filter(author=request.user)
+
+        product = get_object_or_404(queryset, pk=pk)
+
+        product.status = Product.Status.PENDING
+        product.save(update_fields=["status"])
+
+        return redirect("catalog_dashboard:dashboard_product_detail", pk=pk)
+
+
+class PublishProductView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    """Контроллер для опубликования продукта."""
+
+    permission_required = "catalog.can_publish_product"
+
+    def post(self, request: HttpRequest, pk: int):
+        """Переводит продукт в опубликованные."""
+
+        queryset = Product.objects.filter(
+            status=Product.Status.PENDING,
+        )
+
+        product = get_object_or_404(queryset, pk=pk)
+
+        product.status = Product.Status.PUBLISHED
+        product.save(update_fields=["status"])
+
+        return redirect("catalog_dashboard:dashboard_product_detail", pk=pk)
+
+
+class SubmitProductToArchiveView(LoginRequiredMixin, View):
+    """Контроллер для отправки продукта автора в архив."""
+
+    def post(self, request: HttpRequest, pk: int):
+        """Переводит продукт в архив."""
+
+        queryset = Product.objects.filter(
+            status=Product.Status.PUBLISHED,
+        )
+
+        if not request.user.is_superuser:
+            queryset = queryset.filter(author=request.user)
+
+        product = get_object_or_404(queryset, pk=pk)
+
+        product.status = Product.Status.ARCHIVED
+        product.save(update_fields=["status"])
+
+        return redirect("catalog_dashboard:dashboard_product_detail", pk=pk)
