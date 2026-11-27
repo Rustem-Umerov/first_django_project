@@ -6,7 +6,8 @@
     <h1 class="mb-3 text-break">{{ post.title }}</h1>
 
     <p class="text-muted">
-        Опубликовано: {{ post.created_at|date:"d.m.Y H:i" }} &nbsp;|&nbsp; Количество просмотров {{ post.count_views }}
+        Опубликовано: {{ post.created_at|date:"d.m.Y H:i" }} &nbsp;|&nbsp; Количество просмотров {{ post.count_views }}<br>
+        Автор: {{ post.author.username }} &nbsp;|&nbsp; {{ post.author.email }}
     </p>
 
     {% if post.image %}
